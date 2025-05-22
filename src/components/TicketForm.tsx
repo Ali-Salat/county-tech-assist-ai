@@ -102,7 +102,7 @@ export function TicketForm() {
                   type="email" 
                   value={email} 
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="john.smith@county.gov"
+                  placeholder="ali.salat@wajir.go.ke"
                   required
                 />
               </div>
