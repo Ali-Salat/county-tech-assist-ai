@@ -186,7 +186,7 @@ export const departments = [
   'Information Technology',
   'Parks & Recreation',
   'County Clerk',
-  'Sheriff\'s Office',
+  'Revenue',
   'Planning & Development',
   'Transportation',
   'Environmental Services',
