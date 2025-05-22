@@ -187,9 +187,9 @@ export const departments = [
   'Parks & Recreation',
   'County Secretary',
   'Revenue',
-  'Planning & Development',
-  'Transportation',
+  'Lands & Physical Planning',
+  'Roads & Transport',
   'Environmental Services',
-  'Social Services',
+  'Trade',
   'Communications'
 ];
