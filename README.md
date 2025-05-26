@@ -4,6 +4,10 @@
 
 **URL**: https://lovable.dev/projects/06be0b85-a70c-4aba-92b3-b2198b89e033
 
+## Pitch Deck info
+
+**URL**: https://www.canva.com/design/DAGojEb66aI/cc2xtuQshR3R8OHaEajATA/edit?utm_content=DAGojEb66aI&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
+
 ## How can I edit this code?
 
 There are several ways of editing your application.
