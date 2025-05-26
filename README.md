@@ -9,6 +9,8 @@
 
 **URL**: https://www.canva.com/design/DAGojEb66aI/cc2xtuQshR3R8OHaEajATA/edit?utm_content=DAGojEb66aI&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
 
+## **The prompt used**
+"Design and develop a robust Help Desk System for Wajir County Government to streamline the process of requesting and managing ICT support services. The system should digitize service request submissions, approvals, assignments, and resolutions, improving efficiency and accountability. 
 ## How can I edit this code?
 
 There are several ways of editing your application.
