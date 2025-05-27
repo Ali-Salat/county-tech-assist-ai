@@ -11,10 +11,15 @@ const Index = () => {
       <main className="flex-grow">
         <div className="container px-4 py-8 mx-auto max-w-7xl">
           <section className="mb-8">
-            <h1 className="text-3xl font-bold tracking-tight mb-2">ICT Help Desk Portal</h1>
-            <p className="text-muted-foreground">
-              Submit and track your IT support requests in one place
-            </p>
+            <div className="hero-gradient rounded-lg p-8 text-white mb-8">
+              <h1 className="text-4xl font-bold tracking-tight mb-2">Wajir County ICT Help Desk</h1>
+              <p className="text-lg opacity-90">
+                Professional ICT support services for Wajir County Government employees
+              </p>
+              <p className="text-sm opacity-75 mt-2">
+                Submit and track your IT support requests efficiently
+              </p>
+            </div>
             
             <div className="mt-8">
               <DashboardStats />
@@ -27,49 +32,70 @@ const Index = () => {
           
           <section className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
             <div>
-              <h2 className="text-xl font-semibold mb-4">Common Resources</h2>
+              <h2 className="text-xl font-semibold mb-4">ICT Resources</h2>
               <div className="grid grid-cols-2 gap-4">
                 <ResourceCard 
-                  title="Employee Email" 
-                  description="Access your county email account" 
+                  title="County Email" 
+                  description="Access your @wajir.go.ke email account" 
                   link="#"
                 />
                 <ResourceCard 
                   title="Password Reset" 
-                  description="Self-service password recovery tool" 
+                  description="Self-service password recovery portal" 
                   link="#"
                 />
                 <ResourceCard 
                   title="Software Catalog" 
-                  description="Browse available software" 
+                  description="Browse approved county software" 
                   link="#"
                 />
                 <ResourceCard 
-                  title="Training Portal" 
-                  description="IT training materials and videos" 
+                  title="ICT Training" 
+                  description="Training materials and guides" 
                   link="#"
                 />
               </div>
             </div>
             
             <div>
-              <h2 className="text-xl font-semibold mb-4">IT Announcements</h2>
+              <h2 className="text-xl font-semibold mb-4">ICT Announcements</h2>
               <div className="space-y-4">
                 <AnnouncementCard
-                  title="System Maintenance"
+                  title="System Maintenance Scheduled"
                   date="May 25, 2025"
-                  content="Scheduled maintenance will be performed on all systems this Sunday from 2AM to 6AM."
+                  content="Planned maintenance on all county systems this Sunday from 2AM to 6AM. Critical systems will remain operational."
                 />
                 <AnnouncementCard
-                  title="New Email Security Features"
+                  title="New Security Protocols Active"
                   date="May 18, 2025"
-                  content="Enhanced security features have been enabled for all county email accounts."
+                  content="Enhanced cybersecurity measures have been implemented across all Wajir County digital platforms."
                 />
                 <AnnouncementCard
-                  title="Office Software Update"
+                  title="Office 365 Upgrade Complete"
                   date="May 10, 2025"
-                  content="The latest version of Microsoft Office is now available for installation."
+                  content="The latest version of Microsoft Office 365 is now available for all county employees."
                 />
+              </div>
+            </div>
+          </section>
+          
+          <section className="bg-muted/50 rounded-lg p-6">
+            <h2 className="text-xl font-semibold mb-4">Contact ICT Support</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="text-center">
+                <h3 className="font-medium">Director ICT</h3>
+                <p className="text-sm text-muted-foreground">Mohamed Shahid</p>
+                <p className="text-sm">mohamed.shahid@wajir.go.ke</p>
+              </div>
+              <div className="text-center">
+                <h3 className="font-medium">Senior ICT Officer</h3>
+                <p className="text-sm text-muted-foreground">Ali Salat</p>
+                <p className="text-sm">ali.salat@wajir.go.ke</p>
+              </div>
+              <div className="text-center">
+                <h3 className="font-medium">Emergency Support</h3>
+                <p className="text-sm text-muted-foreground">24/7 Critical Issues</p>
+                <p className="text-sm">Tel: +254 (0) XX XXX XXXX</p>
               </div>
             </div>
           </section>

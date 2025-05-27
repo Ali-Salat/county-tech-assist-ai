@@ -10,6 +10,15 @@ export type TicketCategory =
   | 'printer' 
   | 'other';
 
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: 'superuser' | 'ict_officer' | 'user';
+  department: string;
+  title?: string;
+}
+
 export interface Ticket {
   id: string;
   title: string;
@@ -29,6 +38,25 @@ export interface Ticket {
   };
 }
 
+export const users: User[] = [
+  {
+    id: 'user-super-1',
+    name: 'Mohamed Shahid',
+    email: 'mohamed.shahid@wajir.go.ke',
+    role: 'superuser',
+    department: 'Information Technology',
+    title: 'Director ICT'
+  },
+  {
+    id: 'user-ict-1',
+    name: 'Ali Salat',
+    email: 'ali.salat@wajir.go.ke',
+    role: 'ict_officer',
+    department: 'Information Technology',
+    title: 'Senior ICT Officer'
+  }
+];
+
 export const mockTickets: Ticket[] = [
   {
     id: '1',
@@ -39,12 +67,12 @@ export const mockTickets: Ticket[] = [
     status: 'in-progress',
     createdAt: '2025-05-20T08:30:00Z',
     updatedAt: '2025-05-20T09:15:00Z',
-    assignedTo: 'Tech Support Team',
-    department: 'IT',
+    assignedTo: 'Ali Salat',
+    department: 'Information Technology',
     submittedBy: {
       id: 'user1',
       name: 'John Smith',
-      email: 'john.smith@county.gov',
+      email: 'john.smith@wajir.go.ke',
       department: 'Finance'
     }
   },
@@ -57,11 +85,11 @@ export const mockTickets: Ticket[] = [
     status: 'open',
     createdAt: '2025-05-21T10:45:00Z',
     updatedAt: '2025-05-21T10:45:00Z',
-    department: 'IT',
+    department: 'Information Technology',
     submittedBy: {
       id: 'user2',
       name: 'Sarah Johnson',
-      email: 'sarah.johnson@county.gov',
+      email: 'sarah.johnson@wajir.go.ke',
       department: 'Health Services'
     }
   },
@@ -74,12 +102,12 @@ export const mockTickets: Ticket[] = [
     status: 'resolved',
     createdAt: '2025-05-19T14:20:00Z',
     updatedAt: '2025-05-20T11:30:00Z',
-    assignedTo: 'System Admin',
-    department: 'IT',
+    assignedTo: 'Mohamed Shahid',
+    department: 'Information Technology',
     submittedBy: {
       id: 'user3',
       name: 'Michael Williams',
-      email: 'michael.williams@county.gov',
+      email: 'michael.williams@wajir.go.ke',
       department: 'Finance'
     }
   },
@@ -92,12 +120,12 @@ export const mockTickets: Ticket[] = [
     status: 'closed',
     createdAt: '2025-05-18T09:10:00Z',
     updatedAt: '2025-05-19T13:45:00Z',
-    assignedTo: 'Hardware Team',
-    department: 'IT',
+    assignedTo: 'Ali Salat',
+    department: 'Information Technology',
     submittedBy: {
       id: 'user4',
       name: 'Emily Davis',
-      email: 'emily.davis@county.gov',
+      email: 'emily.davis@wajir.go.ke',
       department: 'Public Works'
     }
   },
@@ -110,11 +138,11 @@ export const mockTickets: Ticket[] = [
     status: 'open',
     createdAt: '2025-05-21T11:50:00Z',
     updatedAt: '2025-05-21T11:50:00Z',
-    department: 'IT',
+    department: 'Information Technology',
     submittedBy: {
       id: 'user5',
       name: 'Robert Brown',
-      email: 'robert.brown@county.gov',
+      email: 'robert.brown@wajir.go.ke',
       department: 'Communications'
     }
   }
@@ -180,7 +208,7 @@ export const commonIssues = [
 
 export const departments = [
   'Finance',
-  'Health Services',
+  'Health Services', 
   'Public Works',
   'Human Resources',
   'Information Technology',
@@ -191,5 +219,10 @@ export const departments = [
   'Roads & Transport',
   'Environmental Services',
   'Trade',
-  'Communications'
+  'Communications',
+  'Agriculture & Livestock',
+  'Water & Sanitation',
+  'Education',
+  'Youth & Sports',
+  'Gender & Social Services'
 ];
