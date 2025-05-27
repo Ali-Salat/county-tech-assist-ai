@@ -95,7 +95,7 @@ const Index = () => {
               <div className="text-center">
                 <h3 className="font-medium">Emergency Support</h3>
                 <p className="text-sm text-muted-foreground">24/7 Critical Issues</p>
-                <p className="text-sm">Tel: +254 (0) XX XXX XXXX</p>
+                <p className="text-sm">Email: helpdesk@wajir.go.ke</p>
               </div>
             </div>
           </section>

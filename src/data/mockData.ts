@@ -1,4 +1,3 @@
-
 export type TicketPriority = 'low' | 'medium' | 'high';
 export type TicketStatus = 'open' | 'in-progress' | 'resolved' | 'closed';
 export type TicketCategory = 
@@ -44,7 +43,7 @@ export const users: User[] = [
     name: 'Mohamed Shahid',
     email: 'mohamed.shahid@wajir.go.ke',
     role: 'superuser',
-    department: 'Information Technology',
+    department: 'ICT, Trade, Investment and Industry',
     title: 'Director ICT'
   },
   {
@@ -52,7 +51,7 @@ export const users: User[] = [
     name: 'Ali Salat',
     email: 'ali.salat@wajir.go.ke',
     role: 'ict_officer',
-    department: 'Information Technology',
+    department: 'ICT, Trade, Investment and Industry',
     title: 'Senior ICT Officer'
   }
 ];
@@ -68,12 +67,12 @@ export const mockTickets: Ticket[] = [
     createdAt: '2025-05-20T08:30:00Z',
     updatedAt: '2025-05-20T09:15:00Z',
     assignedTo: 'Ali Salat',
-    department: 'Information Technology',
+    department: 'ICT, Trade, Investment and Industry',
     submittedBy: {
       id: 'user1',
-      name: 'John Smith',
-      email: 'john.smith@wajir.go.ke',
-      department: 'Finance'
+      name: 'Ahmed Hassan',
+      email: 'ahmed.hassan@wajir.go.ke',
+      department: 'Finance and Economic Planning'
     }
   },
   {
@@ -85,11 +84,11 @@ export const mockTickets: Ticket[] = [
     status: 'open',
     createdAt: '2025-05-21T10:45:00Z',
     updatedAt: '2025-05-21T10:45:00Z',
-    department: 'Information Technology',
+    department: 'ICT, Trade, Investment and Industry',
     submittedBy: {
       id: 'user2',
-      name: 'Sarah Johnson',
-      email: 'sarah.johnson@wajir.go.ke',
+      name: 'Fatima Abdullah',
+      email: 'fatima.abdullah@wajir.go.ke',
       department: 'Health Services'
     }
   },
@@ -103,12 +102,12 @@ export const mockTickets: Ticket[] = [
     createdAt: '2025-05-19T14:20:00Z',
     updatedAt: '2025-05-20T11:30:00Z',
     assignedTo: 'Mohamed Shahid',
-    department: 'Information Technology',
+    department: 'ICT, Trade, Investment and Industry',
     submittedBy: {
       id: 'user3',
-      name: 'Michael Williams',
-      email: 'michael.williams@wajir.go.ke',
-      department: 'Finance'
+      name: 'Omar Ibrahim',
+      email: 'omar.ibrahim@wajir.go.ke',
+      department: 'Finance and Economic Planning'
     }
   },
   {
@@ -121,12 +120,12 @@ export const mockTickets: Ticket[] = [
     createdAt: '2025-05-18T09:10:00Z',
     updatedAt: '2025-05-19T13:45:00Z',
     assignedTo: 'Ali Salat',
-    department: 'Information Technology',
+    department: 'ICT, Trade, Investment and Industry',
     submittedBy: {
       id: 'user4',
-      name: 'Emily Davis',
-      email: 'emily.davis@wajir.go.ke',
-      department: 'Public Works'
+      name: 'Amina Mohammed',
+      email: 'amina.mohammed@wajir.go.ke',
+      department: 'Lands, Public Works and Urban Development'
     }
   },
   {
@@ -138,12 +137,12 @@ export const mockTickets: Ticket[] = [
     status: 'open',
     createdAt: '2025-05-21T11:50:00Z',
     updatedAt: '2025-05-21T11:50:00Z',
-    department: 'Information Technology',
+    department: 'ICT, Trade, Investment and Industry',
     submittedBy: {
       id: 'user5',
-      name: 'Robert Brown',
-      email: 'robert.brown@wajir.go.ke',
-      department: 'Communications'
+      name: 'Yusuf Ahmed',
+      email: 'yusuf.ahmed@wajir.go.ke',
+      department: 'Office of the Governor, Public Service and County Administration'
     }
   }
 ];
@@ -207,22 +206,16 @@ export const commonIssues = [
 ];
 
 export const departments = [
-  'Finance',
-  'Health Services', 
-  'Public Works',
-  'Human Resources',
-  'Information Technology',
-  'Parks & Recreation',
-  'County Secretary',
-  'Revenue',
-  'Lands & Physical Planning',
-  'Roads & Transport',
-  'Environmental Services',
-  'Trade',
-  'Communications',
-  'Agriculture & Livestock',
-  'Water & Sanitation',
-  'Education',
-  'Youth & Sports',
-  'Gender & Social Services'
+  'Health Services',
+  'Water Services',
+  'Office of the Governor, Public Service and County Administration',
+  'Agriculture, Livestock and Veterinary Services',
+  'ICT, Trade, Investment and Industry',
+  'Finance and Economic Planning',
+  'Education, Social Welfare and Family Affairs',
+  'Roads and Transport',
+  'Lands, Public Works and Urban Development',
+  'Energy, Environment and Climate Change',
+  'Wajir Municipality',
+  'Wajiwasco (Wajir Water and Sewerage Company)'
 ];
