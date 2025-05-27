@@ -2,8 +2,11 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { DashboardStats, TicketDashboard } from "@/components/TicketDashboard";
+import { useAuth } from "@/components/AuthProvider";
 
 const Index = () => {
+  const { user } = useAuth();
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -21,14 +24,18 @@ const Index = () => {
               </p>
             </div>
             
-            <div className="mt-8">
-              <DashboardStats />
-            </div>
+            {user && (
+              <div className="mt-8">
+                <DashboardStats />
+              </div>
+            )}
           </section>
           
-          <section className="mb-8">
-            <TicketDashboard />
-          </section>
+          {user && (
+            <section className="mb-8">
+              <TicketDashboard />
+            </section>
+          )}
           
           <section className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
             <div>
@@ -95,7 +102,7 @@ const Index = () => {
               <div className="text-center">
                 <h3 className="font-medium">Emergency Support</h3>
                 <p className="text-sm text-muted-foreground">24/7 Critical Issues</p>
-                <p className="text-sm">Email: helpdesk@wajir.go.ke</p>
+                <p className="text-sm">helpdesk@wajir.go.ke</p>
               </div>
             </div>
           </section>

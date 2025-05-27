@@ -1,11 +1,14 @@
 
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Settings, User } from "lucide-react";
+import { Settings } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
+import { UserMenu } from "./UserMenu";
+import { useAuth } from "./AuthProvider";
 
 export function Header() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   return (
     <header className="bg-background border-b border-border shadow-sm sticky top-0 z-10">
@@ -31,20 +34,18 @@ export function Header() {
           </div>
           <div className="flex items-center space-x-4">
             <ThemeToggle />
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Settings"
-            >
-              <Settings className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="User profile"
-            >
-              <User className="h-5 w-5" />
-            </Button>
+            {user && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Settings"
+                >
+                  <Settings className="h-5 w-5" />
+                </Button>
+                <UserMenu />
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -205,17 +205,18 @@ export const commonIssues = [
   }
 ];
 
+// Updated Wajir County departments
 export const departments = [
-  'Health Services',
-  'Water Services',
-  'Office of the Governor, Public Service and County Administration',
-  'Agriculture, Livestock and Veterinary Services',
-  'ICT, Trade, Investment and Industry',
-  'Finance and Economic Planning',
-  'Education, Social Welfare and Family Affairs',
-  'Roads and Transport',
-  'Lands, Public Works and Urban Development',
-  'Energy, Environment and Climate Change',
-  'Wajir Municipality',
-  'Wajiwasco (Wajir Water and Sewerage Company)'
+  "Health Services",
+  "Water Services", 
+  "Office of the Governor, Public Service and County Administration",
+  "Agriculture, Livestock and Veterinary Services",
+  "ICT, Trade, Investment and Industry",
+  "Finance and Economic Planning",
+  "Education, Social Welfare and Family Affairs",
+  "Roads and Transport",
+  "Lands, Public Works and Urban Development",
+  "Energy, Environment and Climate Change",
+  "Wajir Municipality",
+  "Wajiwasco (Wajir Water and Sewerage Company)"
 ];
