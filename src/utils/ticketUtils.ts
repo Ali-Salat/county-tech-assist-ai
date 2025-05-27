@@ -2,11 +2,14 @@
 import { 
   Ticket, 
   TicketPriority, 
-  TicketStatus, 
   TicketCategory, 
-  mockTickets,
   commonIssues
 } from '../data/mockData';
+import { 
+  getTicketsFromSupabase, 
+  createTicketInSupabase, 
+  updateTicketInSupabase 
+} from '../services/supabaseService';
 
 // Generate a unique ID
 export const generateId = (): string => {
@@ -25,43 +28,40 @@ export const formatDate = (dateString: string): string => {
   }).format(date);
 };
 
-// Get all tickets (in a real app, this would be an API call)
-export const getTickets = (): Ticket[] => {
-  return mockTickets;
+// Get all tickets from Supabase
+export const getTickets = async (): Promise<Ticket[]> => {
+  try {
+    return await getTicketsFromSupabase();
+  } catch (error) {
+    console.error('Error fetching tickets:', error);
+    return [];
+  }
 };
 
 // Get a single ticket by ID
-export const getTicketById = (id: string): Ticket | undefined => {
-  return mockTickets.find(ticket => ticket.id === id);
+export const getTicketById = async (id: string): Promise<Ticket | undefined> => {
+  const tickets = await getTickets();
+  return tickets.find(ticket => ticket.id === id);
 };
 
 // Create a new ticket
-export const createTicket = (ticketData: Omit<Ticket, 'id' | 'createdAt' | 'updatedAt'>): Ticket => {
-  const now = new Date().toISOString();
-  const newTicket: Ticket = {
-    id: generateId(),
-    ...ticketData,
-    createdAt: now,
-    updatedAt: now
-  };
-  
-  // In a real app, this would save to a database
-  mockTickets.push(newTicket);
-  return newTicket;
+export const createTicket = async (ticketData: Omit<Ticket, 'id' | 'createdAt' | 'updatedAt'>): Promise<Ticket> => {
+  try {
+    return await createTicketInSupabase(ticketData);
+  } catch (error) {
+    console.error('Error creating ticket:', error);
+    throw error;
+  }
 };
 
 // Update a ticket
-export const updateTicket = (id: string, updates: Partial<Ticket>): Ticket | undefined => {
-  const index = mockTickets.findIndex(ticket => ticket.id === id);
-  if (index === -1) return undefined;
-  
-  mockTickets[index] = {
-    ...mockTickets[index],
-    ...updates,
-    updatedAt: new Date().toISOString()
-  };
-  
-  return mockTickets[index];
+export const updateTicket = async (id: string, updates: Partial<Ticket>): Promise<Ticket | undefined> => {
+  try {
+    return await updateTicketInSupabase(id, updates);
+  } catch (error) {
+    console.error('Error updating ticket:', error);
+    throw error;
+  }
 };
 
 // Get AI assistance for a problem description
@@ -80,7 +80,7 @@ export const getAIAssistance = (description: string, category: TicketCategory): 
   return [
     "We couldn't find an automated solution for your specific issue.",
     "Your ticket has been created and an IT specialist will assist you soon.",
-    "For urgent issues, please contact the IT helpdesk directly at extension 1234."
+    "For urgent issues, please contact the IT helpdesk directly at helpdesk@wajir.go.ke."
   ];
 };
 

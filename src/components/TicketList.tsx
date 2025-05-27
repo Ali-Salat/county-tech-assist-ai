@@ -1,16 +1,21 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PriorityBadge, TicketStatusBadge } from "./TicketStatus";
 import { getTickets, formatDate } from "@/utils/ticketUtils";
 import { Ticket, TicketStatus } from "@/data/mockData";
 import { Search } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 export function TicketList() {
-  const allTickets = getTickets();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<TicketStatus | "all">("all");
+  
+  const { data: allTickets = [], isLoading, error } = useQuery({
+    queryKey: ['tickets'],
+    queryFn: getTickets,
+  });
   
   const filteredTickets = allTickets.filter(ticket => {
     const matchesSearch = 
@@ -22,6 +27,30 @@ export function TicketList() {
     
     return matchesSearch && matchesStatus;
   });
+
+  if (isLoading) {
+    return (
+      <Card className="w-full">
+        <CardContent className="p-6">
+          <div className="text-center py-12 text-muted-foreground">
+            <p>Loading tickets...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="w-full">
+        <CardContent className="p-6">
+          <div className="text-center py-12 text-muted-foreground">
+            <p>Error loading tickets. Please try again.</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
   
   return (
     <Card className="w-full">
@@ -117,7 +146,7 @@ function TicketCard({ ticket }: TicketCardProps) {
       </div>
       <div className="flex justify-between items-center text-xs text-muted-foreground">
         <div>
-          <span>Ticket #{ticket.id}</span>
+          <span>Ticket #{ticket.id.slice(0, 8)}</span>
           <span className="mx-2">•</span>
           <span>Category: {ticket.category}</span>
         </div>

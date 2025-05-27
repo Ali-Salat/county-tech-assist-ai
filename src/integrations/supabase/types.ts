@@ -9,7 +9,105 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      tickets: {
+        Row: {
+          assigned_to: string | null
+          category: string
+          created_at: string
+          department: string
+          description: string
+          id: string
+          priority: string
+          status: string
+          submitted_by_department: string
+          submitted_by_email: string
+          submitted_by_id: string
+          submitted_by_name: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          category: string
+          created_at?: string
+          department: string
+          description: string
+          id?: string
+          priority: string
+          status: string
+          submitted_by_department: string
+          submitted_by_email: string
+          submitted_by_id: string
+          submitted_by_name: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          category?: string
+          created_at?: string
+          department?: string
+          description?: string
+          id?: string
+          priority?: string
+          status?: string
+          submitted_by_department?: string
+          submitted_by_email?: string
+          submitted_by_id?: string
+          submitted_by_name?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tickets_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tickets_submitted_by_id_fkey"
+            columns: ["submitted_by_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          created_at: string
+          department: string
+          email: string
+          id: string
+          name: string
+          role: string
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          department: string
+          email: string
+          id?: string
+          name: string
+          role: string
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          department?: string
+          email?: string
+          id?: string
+          name?: string
+          role?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

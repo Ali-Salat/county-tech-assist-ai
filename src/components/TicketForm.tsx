@@ -10,6 +10,7 @@ import { departments, TicketCategory } from "@/data/mockData";
 import { createTicket, estimatePriority, getAIAssistance } from "@/utils/ticketUtils";
 import { AIAssistant } from "./AIAssistant";
 import { toast } from "@/components/ui/sonner";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function TicketForm() {
   const [title, setTitle] = useState("");
@@ -20,7 +21,33 @@ export function TicketForm() {
   const [email, setEmail] = useState("");
   const [showAssistance, setShowAssistance] = useState(false);
   const [aiSolutions, setAiSolutions] = useState<string[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const queryClient = useQueryClient();
+
+  const createTicketMutation = useMutation({
+    mutationFn: createTicket,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      toast.success("Ticket submitted successfully", {
+        description: "Your ticket has been created and is being processed.",
+      });
+      
+      // Reset form
+      setTitle("");
+      setDescription("");
+      setCategory("hardware");
+      setDepartment(departments[0]);
+      setName("");
+      setEmail("");
+      setShowAssistance(false);
+    },
+    onError: (error) => {
+      console.error('Error creating ticket:', error);
+      toast.error("Failed to submit ticket", {
+        description: "Please try again or contact support.",
+      });
+    },
+  });
 
   useEffect(() => {
     // Reset AI assistance when description changes
@@ -34,43 +61,23 @@ export function TicketForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     
-    try {
-      const priority = estimatePriority(description, category);
-      
-      createTicket({
-        title,
-        description,
-        category,
-        priority,
-        status: 'open',
-        department,
-        submittedBy: {
-          id: Math.random().toString(36).substring(2, 9),
-          name,
-          email,
-          department
-        }
-      });
-      
-      toast.success("Ticket submitted successfully", {
-        description: "Your ticket has been created and is being processed.",
-      });
-      
-      // Reset form
-      setTitle("");
-      setDescription("");
-      setCategory("hardware");
-      setDepartment(departments[0]);
-      setShowAssistance(false);
-    } catch (error) {
-      toast.error("Failed to submit ticket", {
-        description: "Please try again or contact support.",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    const priority = estimatePriority(description, category);
+    
+    createTicketMutation.mutate({
+      title,
+      description,
+      category,
+      priority,
+      status: 'open',
+      department,
+      submittedBy: {
+        id: Math.random().toString(36).substring(2, 9),
+        name,
+        email,
+        department
+      }
+    });
   };
 
   return (
@@ -91,7 +98,7 @@ export function TicketForm() {
                   id="name" 
                   value={name} 
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="John Smith"
+                  placeholder="Ahmed Hassan"
                   required
                 />
               </div>
@@ -102,7 +109,7 @@ export function TicketForm() {
                   type="email" 
                   value={email} 
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="ali.salat@wajir.go.ke"
+                  placeholder="ahmed.hassan@wajir.go.ke"
                   required
                 />
               </div>
@@ -179,15 +186,15 @@ export function TicketForm() {
           <Button 
             type="submit" 
             className="w-full" 
-            disabled={isSubmitting}
+            disabled={createTicketMutation.isPending}
           >
-            {isSubmitting ? "Submitting..." : "Submit Ticket"}
+            {createTicketMutation.isPending ? "Submitting..." : "Submit Ticket"}
           </Button>
         </form>
       </CardContent>
       <CardFooter className="flex justify-between text-xs text-gray-500 border-t pt-4">
         <p>All tickets are processed during business hours (8AM-5PM)</p>
-        <p>For emergencies call ext. 1234</p>
+        <p>For emergencies email: helpdesk@wajir.go.ke</p>
       </CardFooter>
     </Card>
   );

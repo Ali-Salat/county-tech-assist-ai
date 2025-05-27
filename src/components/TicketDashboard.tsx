@@ -3,6 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TicketForm } from "./TicketForm";
 import { TicketList } from "./TicketList";
+import { useQuery } from "@tanstack/react-query";
+import { getTickets } from "@/utils/ticketUtils";
 
 export function TicketDashboard() {
   return (
@@ -22,11 +24,48 @@ export function TicketDashboard() {
 }
 
 export function DashboardStats() {
+  const { data: tickets = [], isLoading } = useQuery({
+    queryKey: ['tickets'],
+    queryFn: getTickets,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
+        <StatsCard 
+          title="Open Tickets" 
+          value="..." 
+          description="Loading..."
+          trend="neutral"
+          trendValue="..."
+        />
+        <StatsCard 
+          title="Avg. Response Time" 
+          value="..." 
+          description="Loading..."
+          trend="neutral"
+          trendValue="..."
+        />
+        <StatsCard 
+          title="Satisfaction Rate" 
+          value="..." 
+          description="Loading..."
+          trend="neutral"
+          trendValue="..."
+        />
+      </div>
+    );
+  }
+
+  const openTickets = tickets.filter(ticket => ticket.status === 'open').length;
+  const inProgressTickets = tickets.filter(ticket => ticket.status === 'in-progress').length;
+  const totalActiveTickets = openTickets + inProgressTickets;
+
   return (
     <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
       <StatsCard 
         title="Open Tickets" 
-        value="2" 
+        value={totalActiveTickets.toString()} 
         description="Tickets awaiting response"
         trend="down"
         trendValue="5%"
