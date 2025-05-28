@@ -70,7 +70,7 @@ const Index = () => {
                 <AnnouncementCard
                   title="System Maintenance Scheduled"
                   date="May 25, 2025"
-                  content="Planned maintenance on all county systems this Sunday from 2AM to 6AM. Critical systems will remain operational."
+                  content="Planned maintenance on all county systems this Sunday from 8AM to 2PM. Critical systems will remain operational."
                 />
                 <AnnouncementCard
                   title="New Security Protocols Active"
