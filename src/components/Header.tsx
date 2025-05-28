@@ -28,7 +28,7 @@ export function Header() {
                 >
                   Wajir County ICT Help Desk
                 </h1>
-                <p className="text-xs text-muted-foreground">Government of Wajir County</p>
+                <p className="text-xs text-muted-foreground font-bold">County Government of Wajir</p>
               </div>
             </div>
           </div>

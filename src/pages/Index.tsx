@@ -16,8 +16,8 @@ const Index = () => {
           <section className="mb-8">
             <div className="hero-gradient rounded-lg p-8 text-white mb-8">
               <h1 className="text-4xl font-bold tracking-tight mb-2">Wajir County ICT Help Desk</h1>
-              <p className="text-lg opacity-90">
-                Professional ICT support services for Wajir County Government employees
+              <p className="text-lg opacity-90 font-bold">
+                Professional ICT support services for County Government of Wajir employees
               </p>
               <p className="text-sm opacity-75 mt-2">
                 Submit and track your IT support requests efficiently
