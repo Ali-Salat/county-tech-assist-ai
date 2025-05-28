@@ -2,6 +2,7 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { DashboardStats, TicketDashboard } from "@/components/TicketDashboard";
+import { ChatBot } from "@/components/ChatBot";
 import { useAuth } from "@/components/AuthProvider";
 import { Shield, Users, Clock, Mail, Phone, MapPin, Globe, Award, CheckCircle } from "lucide-react";
 
@@ -173,6 +174,7 @@ const Index = () => {
       </main>
       
       <Footer />
+      <ChatBot />
     </div>
   );
 };
