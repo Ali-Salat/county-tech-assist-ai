@@ -136,7 +136,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
       {
         email: 'director@wajir.go.ke',
-        password: 'Demo123!',
+        password: 'WajirICT2024!',
         name: 'Mohamed Shahid',
         department: 'Information and Communication Technology',
         role: 'admin',
@@ -144,7 +144,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
       {
         email: 'ali.salat@wajir.go.ke',
-        password: 'Demo123!',
+        password: 'WajirICT2024!',
         name: 'Ali Salat',
         department: 'Information and Communication Technology',
         role: 'admin',
@@ -152,7 +152,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
       {
         email: 'ict.officer1@wajir.go.ke',
-        password: 'Demo123!',
+        password: 'WajirICT2024!',
         name: 'Ahmed Hassan',
         department: 'Information and Communication Technology',
         role: 'ict_officer',
@@ -160,7 +160,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
       {
         email: 'user.demo@wajir.go.ke',
-        password: 'Demo123!',
+        password: 'WajirICT2024!',
         name: 'Fatuma Mohamed',
         department: 'Finance and Economic Planning',
         role: 'user',
@@ -168,8 +168,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     ];
 
+    console.log('Creating demo accounts...');
+    
     for (const account of demoAccounts) {
       try {
+        // First try to sign up
         const { data, error } = await supabase.auth.signUp({
           email: account.email,
           password: account.password,
@@ -183,21 +186,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
 
         if (data.user && !error) {
-          await supabase
+          // Then create the profile
+          const { error: profileError } = await supabase
             .from('users')
-            .insert({
+            .upsert({
               id: data.user.id,
               email: account.email,
               name: account.name,
               department: account.department,
               role: account.role,
               title: account.title,
+            }, {
+              onConflict: 'email'
             });
+
+          if (profileError) {
+            console.error(`Error creating profile for ${account.email}:`, profileError);
+          } else {
+            console.log(`Successfully created demo account: ${account.email}`);
+          }
+        } else if (error && error.message.includes('already registered')) {
+          // Account already exists, just update the profile
+          console.log(`Demo account ${account.email} already exists, updating profile...`);
+          
+          const { error: profileError } = await supabase
+            .from('users')
+            .upsert({
+              email: account.email,
+              name: account.name,
+              department: account.department,
+              role: account.role,
+              title: account.title,
+            }, {
+              onConflict: 'email'
+            });
+
+          if (profileError) {
+            console.error(`Error updating profile for ${account.email}:`, profileError);
+          }
         }
       } catch (error) {
-        console.log(`Demo account ${account.email} might already exist`);
+        console.error(`Error processing demo account ${account.email}:`, error);
       }
     }
+    
+    console.log('Demo accounts creation completed');
   };
 
   return (

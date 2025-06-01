@@ -23,7 +23,7 @@ export function Header() {
               <div className="relative">
                 <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse"></div>
                 <img 
-                  src="/lovable-uploads/825a277b-660c-4190-99eb-c75e7362dbea.png" 
+                  src="/lovable-uploads/60407c4d-d926-4d49-85c1-36e4af65d42b.png" 
                   alt="Wajir County Logo" 
                   className="relative h-12 w-12 drop-shadow-lg"
                 />

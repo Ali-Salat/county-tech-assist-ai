@@ -6,17 +6,91 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { departments, TicketCategory } from "@/data/mockData";
+import { TicketCategory } from "@/data/mockData";
 import { createTicket, estimatePriority, getAIAssistance } from "@/utils/ticketUtils";
 import { AIAssistant } from "./AIAssistant";
 import { toast } from "@/components/ui/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "./AuthProvider";
 
+const departmentOffices = {
+  "Finance and Economic Planning": [
+    "Budget Office", 
+    "Procurement Office", 
+    "Accounting Office", 
+    "Revenue Collection", 
+    "Audit Office"
+  ],
+  "Administration and Human Resource": [
+    "Human Resource Office",
+    "Administration Office", 
+    "Legal Affairs Office",
+    "Records Management",
+    "Security Office"
+  ],
+  "Information and Communication Technology": [
+    "System Administration",
+    "Network Operations",
+    "Help Desk",
+    "Data Management",
+    "ICT Policy Office"
+  ],
+  "Health Services": [
+    "Medical Services",
+    "Public Health Office",
+    "Pharmacy Services",
+    "Health Records",
+    "Community Health"
+  ],
+  "Education and Vocational Training": [
+    "Education Office",
+    "Vocational Training",
+    "Early Childhood Development",
+    "Adult Education",
+    "Sports and Recreation"
+  ],
+  "Water, Environment and Natural Resources": [
+    "Water Services",
+    "Environment Office",
+    "Natural Resources",
+    "Conservation Office",
+    "Climate Change Unit"
+  ],
+  "Roads, Transport and Public Works": [
+    "Roads Department",
+    "Transport Licensing",
+    "Public Works",
+    "Mechanical Services",
+    "Traffic Management"
+  ],
+  "Agriculture, Livestock and Fisheries": [
+    "Crop Development",
+    "Livestock Development",
+    "Fisheries Department",
+    "Agricultural Extension",
+    "Veterinary Services"
+  ],
+  "Trade, Industry and Tourism": [
+    "Trade Development",
+    "Industry Development",
+    "Tourism Office",
+    "Cooperatives",
+    "Market Development"
+  ],
+  "Lands, Urban Planning and Housing": [
+    "Land Management",
+    "Urban Planning",
+    "Housing Development",
+    "Survey Office",
+    "Physical Planning"
+  ]
+};
+
 export function TicketForm() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<TicketCategory>("hardware");
+  const [specificOffice, setSpecificOffice] = useState("");
   const [showAssistance, setShowAssistance] = useState(false);
   const [aiSolutions, setAiSolutions] = useState<string[]>([]);
 
@@ -35,6 +109,7 @@ export function TicketForm() {
       setTitle("");
       setDescription("");
       setCategory("hardware");
+      setSpecificOffice("");
       setShowAssistance(false);
     },
     onError: (error) => {
@@ -74,6 +149,7 @@ export function TicketForm() {
       priority,
       status: 'open',
       department: userProfile.department,
+      specificOffice,
       submittedBy: {
         id: user.id,
         name: userProfile.name,
@@ -94,6 +170,8 @@ export function TicketForm() {
       </Card>
     );
   }
+
+  const availableOffices = departmentOffices[userProfile.department as keyof typeof departmentOffices] || [];
 
   return (
     <Card className="w-full max-w-2xl mx-auto shadow-lg border-0 bg-white/95 backdrop-blur-sm">
@@ -124,13 +202,30 @@ export function TicketForm() {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-slate-700">Department</Label>
-            <Input 
-              value={userProfile.department}
-              disabled
-              className="bg-slate-50 text-slate-600"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-slate-700">Department</Label>
+              <Input 
+                value={userProfile.department}
+                disabled
+                className="bg-slate-50 text-slate-600"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="specific-office" className="text-sm font-medium text-slate-700">Specific Office/Unit *</Label>
+              <Select value={specificOffice} onValueChange={setSpecificOffice}>
+                <SelectTrigger className="h-11">
+                  <SelectValue placeholder="Select your office/unit" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableOffices.map((office) => (
+                    <SelectItem key={office} value={office}>
+                      {office}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -189,7 +284,7 @@ export function TicketForm() {
           <Button 
             type="submit" 
             className="w-full h-12 text-base font-medium" 
-            disabled={createTicketMutation.isPending}
+            disabled={createTicketMutation.isPending || !specificOffice}
           >
             {createTicketMutation.isPending ? "Submitting..." : "Submit Support Ticket"}
           </Button>
