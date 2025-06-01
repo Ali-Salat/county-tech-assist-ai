@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Ticket, TicketPriority, TicketStatus, TicketCategory } from "@/data/mockData";
 
@@ -10,6 +9,7 @@ export interface SupabaseTicket {
   priority: TicketPriority;
   status: TicketStatus;
   department: string;
+  specific_office: string;
   assigned_to: string | null;
   submitted_by_id: string;
   submitted_by_name: string;
@@ -91,6 +91,7 @@ export const getTicketsFromSupabase = async (): Promise<Ticket[]> => {
     updatedAt: ticket.updated_at,
     assignedTo: ticket.assigned_to,
     department: ticket.department,
+    specificOffice: ticket.specific_office,
     submittedBy: {
       id: ticket.submitted_by_id,
       name: ticket.submitted_by_name,
@@ -136,6 +137,7 @@ export const createTicketInSupabase = async (ticketData: Omit<Ticket, 'id' | 'cr
       priority: ticketData.priority,
       status: ticketData.status,
       department: ticketData.department,
+      specific_office: ticketData.specificOffice,
       assigned_to: ticketData.assignedTo || null,
       submitted_by_id: user.id,
       submitted_by_name: ticketData.submittedBy.name,
@@ -161,6 +163,7 @@ export const createTicketInSupabase = async (ticketData: Omit<Ticket, 'id' | 'cr
     updatedAt: data.updated_at,
     assignedTo: data.assigned_to,
     department: data.department,
+    specificOffice: data.specific_office,
     submittedBy: {
       id: data.submitted_by_id,
       name: data.submitted_by_name,
@@ -195,6 +198,7 @@ export const updateTicketInSupabase = async (id: string, updates: Partial<Supaba
     updatedAt: data.updated_at,
     assignedTo: data.assigned_to,
     department: data.department,
+    specificOffice: data.specific_office,
     submittedBy: {
       id: data.submitted_by_id,
       name: data.submitted_by_name,

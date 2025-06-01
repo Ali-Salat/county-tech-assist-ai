@@ -1,3 +1,4 @@
+
 export type TicketPriority = 'low' | 'medium' | 'high';
 export type TicketStatus = 'open' | 'in-progress' | 'resolved' | 'closed';
 export type TicketCategory = 
@@ -29,6 +30,7 @@ export interface Ticket {
   updatedAt: string;
   assignedTo?: string;
   department: string;
+  specificOffice: string;
   submittedBy: {
     id: string;
     name: string;
