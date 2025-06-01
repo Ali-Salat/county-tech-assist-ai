@@ -11,17 +11,16 @@ import { createTicket, estimatePriority, getAIAssistance } from "@/utils/ticketU
 import { AIAssistant } from "./AIAssistant";
 import { toast } from "@/components/ui/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "./AuthProvider";
 
 export function TicketForm() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<TicketCategory>("hardware");
-  const [department, setDepartment] = useState(departments[0]);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [showAssistance, setShowAssistance] = useState(false);
   const [aiSolutions, setAiSolutions] = useState<string[]>([]);
 
+  const { userProfile, user } = useAuth();
   const queryClient = useQueryClient();
 
   const createTicketMutation = useMutation({
@@ -36,9 +35,6 @@ export function TicketForm() {
       setTitle("");
       setDescription("");
       setCategory("hardware");
-      setDepartment(departments[0]);
-      setName("");
-      setEmail("");
       setShowAssistance(false);
     },
     onError: (error) => {
@@ -62,6 +58,13 @@ export function TicketForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!userProfile || !user) {
+      toast.error("Authentication required", {
+        description: "Please sign in to submit a ticket.",
+      });
+      return;
+    }
+
     const priority = estimatePriority(description, category);
     
     createTicketMutation.mutate({
@@ -70,131 +73,131 @@ export function TicketForm() {
       category,
       priority,
       status: 'open',
-      department,
+      department: userProfile.department,
       submittedBy: {
-        id: Math.random().toString(36).substring(2, 9),
-        name,
-        email,
-        department
+        id: user.id,
+        name: userProfile.name,
+        email: userProfile.email,
+        department: userProfile.department
       }
     });
   };
 
+  if (!userProfile) {
+    return (
+      <Card className="w-full max-w-2xl mx-auto">
+        <CardContent className="p-6">
+          <div className="text-center py-12 text-muted-foreground">
+            <p>Loading user profile...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle>Submit a New Support Ticket</CardTitle>
-        <CardDescription>
-          Please provide details about your ICT-related issue
+    <Card className="w-full max-w-2xl mx-auto shadow-lg border-0 bg-white/95 backdrop-blur-sm">
+      <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 rounded-t-lg">
+        <CardTitle className="text-xl font-bold">Submit a New Support Ticket</CardTitle>
+        <CardDescription className="text-base">
+          Please provide details about your ICT-related issue. Our team will respond promptly.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Your Name</Label>
-                <Input 
-                  id="name" 
-                  value={name} 
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Ahmed Hassan"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input 
-                  id="email" 
-                  type="email" 
-                  value={email} 
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="ahmed.hassan@wajir.go.ke"
-                  required
-                />
-              </div>
-            </div>
-
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="department">Department</Label>
-              <Select 
-                value={department} 
-                onValueChange={setDepartment}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select department" />
-                </SelectTrigger>
-                <SelectContent>
-                  {departments.map((dept) => (
-                    <SelectItem key={dept} value={dept}>
-                      {dept}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="title">Issue Title</Label>
+              <Label className="text-sm font-medium text-slate-700">Your Name</Label>
               <Input 
-                id="title" 
-                value={title} 
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Brief description of your issue"
-                required
+                value={userProfile.name}
+                disabled
+                className="bg-slate-50 text-slate-600"
               />
             </div>
-
             <div className="space-y-2">
-              <Label htmlFor="category">Issue Category</Label>
-              <Select 
-                value={category} 
-                onValueChange={(value) => setCategory(value as TicketCategory)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="hardware">Hardware</SelectItem>
-                  <SelectItem value="software">Software</SelectItem>
-                  <SelectItem value="network">Network</SelectItem>
-                  <SelectItem value="account">Account/Access</SelectItem>
-                  <SelectItem value="email">Email</SelectItem>
-                  <SelectItem value="printer">Printer</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="description">Detailed Description</Label>
-              <Textarea 
-                id="description" 
-                value={description} 
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Please provide as much detail as possible about your issue"
-                rows={4}
-                required
+              <Label className="text-sm font-medium text-slate-700">Email Address</Label>
+              <Input 
+                value={userProfile.email}
+                disabled
+                className="bg-slate-50 text-slate-600"
               />
             </div>
-
-            {showAssistance && (
-              <AIAssistant solutions={aiSolutions} />
-            )}
           </div>
+
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-slate-700">Department</Label>
+            <Input 
+              value={userProfile.department}
+              disabled
+              className="bg-slate-50 text-slate-600"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="title" className="text-sm font-medium text-slate-700">Issue Title *</Label>
+            <Input 
+              id="title" 
+              value={title} 
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Brief description of your issue"
+              className="h-11"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="category" className="text-sm font-medium text-slate-700">Issue Category *</Label>
+            <Select 
+              value={category} 
+              onValueChange={(value) => setCategory(value as TicketCategory)}
+            >
+              <SelectTrigger className="h-11">
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="hardware">🖥️ Hardware</SelectItem>
+                <SelectItem value="software">💻 Software</SelectItem>
+                <SelectItem value="network">🌐 Network</SelectItem>
+                <SelectItem value="account">👤 Account/Access</SelectItem>
+                <SelectItem value="email">📧 Email</SelectItem>
+                <SelectItem value="printer">🖨️ Printer</SelectItem>
+                <SelectItem value="other">📋 Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description" className="text-sm font-medium text-slate-700">Detailed Description *</Label>
+            <Textarea 
+              id="description" 
+              value={description} 
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Please provide as much detail as possible about your issue, including any error messages, steps to reproduce, and impact on your work"
+              rows={5}
+              className="resize-none"
+              required
+            />
+            <p className="text-xs text-slate-500">
+              Tip: Include screenshots, error messages, and specific steps to help us resolve your issue faster.
+            </p>
+          </div>
+
+          {showAssistance && (
+            <AIAssistant solutions={aiSolutions} />
+          )}
           
           <Button 
             type="submit" 
-            className="w-full" 
+            className="w-full h-12 text-base font-medium" 
             disabled={createTicketMutation.isPending}
           >
-            {createTicketMutation.isPending ? "Submitting..." : "Submit Ticket"}
+            {createTicketMutation.isPending ? "Submitting..." : "Submit Support Ticket"}
           </Button>
         </form>
       </CardContent>
-      <CardFooter className="flex justify-between text-xs text-gray-500 border-t pt-4">
-        <p>All tickets are processed during business hours (8AM-5PM)</p>
-        <p>For emergencies email: helpdesk@wajir.go.ke</p>
+      <CardFooter className="flex justify-between text-xs text-slate-500 border-t bg-slate-50/50 rounded-b-lg px-6 py-4">
+        <p>📞 For emergencies: helpdesk@wajir.go.ke</p>
+        <p>⏰ Business hours: 8AM-5PM</p>
       </CardFooter>
     </Card>
   );

@@ -13,6 +13,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, userData: { name: string; department: string; role?: string }) => Promise<void>;
   signOut: () => Promise<void>;
+  createDemoAccounts: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -23,6 +24,7 @@ const AuthContext = createContext<AuthContextType>({
   signIn: async () => {},
   signUp: async () => {},
   signOut: async () => {},
+  createDemoAccounts: async () => {},
 });
 
 export const useAuth = () => {
@@ -84,7 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signUp = async (email: string, password: string, userData: { name: string; department: string; role?: string }) => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -95,12 +97,98 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         },
       },
     });
+
     if (error) throw error;
+
+    // Create user profile in our users table
+    if (data.user) {
+      const { error: profileError } = await supabase
+        .from('users')
+        .insert({
+          id: data.user.id,
+          email: email,
+          name: userData.name,
+          department: userData.department,
+          role: userData.role || 'user',
+        });
+
+      if (profileError) {
+        console.error('Error creating user profile:', profileError);
+      }
+    }
   };
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
+  };
+
+  const createDemoAccounts = async () => {
+    const demoAccounts = [
+      {
+        email: 'director@wajir.go.ke',
+        password: 'Demo123!',
+        name: 'Mohamed Shahid',
+        department: 'Information and Communication Technology',
+        role: 'superuser',
+        title: 'Director ICT'
+      },
+      {
+        email: 'ali.salat@wajir.go.ke',
+        password: 'Demo123!',
+        name: 'Ali Salat',
+        department: 'Information and Communication Technology',
+        role: 'admin',
+        title: 'Senior ICT Officer'
+      },
+      {
+        email: 'ict.officer1@wajir.go.ke',
+        password: 'Demo123!',
+        name: 'Ahmed Hassan',
+        department: 'Information and Communication Technology',
+        role: 'ict_officer',
+        title: 'ICT Officer'
+      },
+      {
+        email: 'user.demo@wajir.go.ke',
+        password: 'Demo123!',
+        name: 'Fatuma Mohamed',
+        department: 'Finance and Economic Planning',
+        role: 'user',
+        title: 'Accountant'
+      }
+    ];
+
+    for (const account of demoAccounts) {
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email: account.email,
+          password: account.password,
+          options: {
+            data: {
+              name: account.name,
+              department: account.department,
+              role: account.role,
+            },
+          },
+        });
+
+        if (data.user && !error) {
+          await supabase
+            .from('users')
+            .insert({
+              id: data.user.id,
+              email: account.email,
+              name: account.name,
+              department: account.department,
+              role: account.role,
+              title: account.title,
+            });
+        }
+      } catch (error) {
+        console.log(`Demo account ${account.email} might already exist`);
+      }
+    }
   };
 
   return (
@@ -112,6 +200,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signIn,
       signUp,
       signOut,
+      createDemoAccounts,
     }}>
       {children}
     </AuthContext.Provider>

@@ -23,19 +23,47 @@ export interface SupabaseUser {
   id: string;
   email: string;
   name: string;
-  role: 'superuser' | 'ict_officer' | 'user';
+  role: 'superuser' | 'admin' | 'ict_officer' | 'user';
   department: string;
   title?: string;
   created_at: string;
   updated_at: string;
 }
 
-// Get all tickets
-export const getTicketsFromSupabase = async (): Promise<Ticket[]> => {
+// Get current user's role
+export const getCurrentUserRole = async (): Promise<string | null> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
   const { data, error } = await supabase
-    .from('tickets')
-    .select('*')
-    .order('created_at', { ascending: false });
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (error) {
+    console.error('Error fetching user role:', error);
+    return null;
+  }
+
+  return data?.role || null;
+};
+
+// Get all tickets based on user role
+export const getTicketsFromSupabase = async (): Promise<Ticket[]> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const userRole = await getCurrentUserRole();
+  
+  let query = supabase.from('tickets').select('*');
+  
+  // If user is not ICT staff, only show their own tickets
+  if (userRole === 'user') {
+    query = query.eq('submitted_by_id', user.id);
+  }
+  
+  const { data, error } = await query.order('created_at', { ascending: false });
 
   if (error) {
     console.error('Error fetching tickets:', error);
@@ -62,7 +90,7 @@ export const getTicketsFromSupabase = async (): Promise<Ticket[]> => {
   }));
 };
 
-// Get all users
+// Get all users (only for authorized roles)
 export const getUsersFromSupabase = async (): Promise<User[]> => {
   const { data, error } = await supabase
     .from('users')
@@ -78,7 +106,7 @@ export const getUsersFromSupabase = async (): Promise<User[]> => {
     id: user.id,
     name: user.name,
     email: user.email,
-    role: user.role as 'superuser' | 'ict_officer' | 'user',
+    role: user.role as 'superuser' | 'admin' | 'ict_officer' | 'user',
     department: user.department,
     title: user.title
   }));
@@ -86,6 +114,9 @@ export const getUsersFromSupabase = async (): Promise<User[]> => {
 
 // Create a new ticket
 export const createTicketInSupabase = async (ticketData: Omit<Ticket, 'id' | 'createdAt' | 'updatedAt'>): Promise<Ticket> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('User not authenticated');
+
   const { data, error } = await supabase
     .from('tickets')
     .insert({
@@ -96,7 +127,7 @@ export const createTicketInSupabase = async (ticketData: Omit<Ticket, 'id' | 'cr
       status: ticketData.status,
       department: ticketData.department,
       assigned_to: ticketData.assignedTo || null,
-      submitted_by_id: ticketData.submittedBy.id,
+      submitted_by_id: user.id,
       submitted_by_name: ticketData.submittedBy.name,
       submitted_by_email: ticketData.submittedBy.email,
       submitted_by_department: ticketData.submittedBy.department
@@ -129,7 +160,7 @@ export const createTicketInSupabase = async (ticketData: Omit<Ticket, 'id' | 'cr
   };
 };
 
-// Update a ticket
+// Update a ticket (only for authorized roles)
 export const updateTicketInSupabase = async (id: string, updates: Partial<SupabaseTicket>): Promise<Ticket> => {
   const { data, error } = await supabase
     .from('tickets')
