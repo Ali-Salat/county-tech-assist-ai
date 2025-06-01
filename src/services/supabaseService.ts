@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Ticket, TicketPriority, TicketStatus, TicketCategory, User } from "@/data/mockData";
+import { Ticket, TicketPriority, TicketStatus, TicketCategory } from "@/data/mockData";
 
 export interface SupabaseTicket {
   id: string;
@@ -28,6 +28,16 @@ export interface SupabaseUser {
   title?: string;
   created_at: string;
   updated_at: string;
+}
+
+// Updated User interface to match the database schema
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: 'superuser' | 'admin' | 'ict_officer' | 'user';
+  department: string;
+  title?: string;
 }
 
 // Get current user's role

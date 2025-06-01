@@ -1,13 +1,12 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { User as AppUser } from '@/data/mockData';
-import { getUsersFromSupabase } from '@/services/supabaseService';
+import { User, getUsersFromSupabase } from '@/services/supabaseService';
 
 interface AuthContextType {
-  user: User | null;
-  userProfile: AppUser | null;
+  user: SupabaseUser | null;
+  userProfile: User | null;
   session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
@@ -36,8 +35,8 @@ export const useAuth = () => {
 };
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [userProfile, setUserProfile] = useState<AppUser | null>(null);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [userProfile, setUserProfile] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -100,8 +99,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (error) throw error;
 
-    // Create user profile in our users table
+    // Create user profile in our users table with special handling for ellisalat@gmail.com
     if (data.user) {
+      const userRole = email === 'ellisalat@gmail.com' ? 'superuser' : (userData.role || 'user');
+      
       const { error: profileError } = await supabase
         .from('users')
         .insert({
@@ -109,7 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email: email,
           name: userData.name,
           department: userData.department,
-          role: userData.role || 'user',
+          role: userRole,
         });
 
       if (profileError) {
@@ -126,11 +127,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const createDemoAccounts = async () => {
     const demoAccounts = [
       {
+        email: 'ellisalat@gmail.com',
+        password: 'SuperUser123!',
+        name: 'Ellis Salat',
+        department: 'Information and Communication Technology',
+        role: 'superuser',
+        title: 'System Administrator'
+      },
+      {
         email: 'director@wajir.go.ke',
         password: 'Demo123!',
         name: 'Mohamed Shahid',
         department: 'Information and Communication Technology',
-        role: 'superuser',
+        role: 'admin',
         title: 'Director ICT'
       },
       {
