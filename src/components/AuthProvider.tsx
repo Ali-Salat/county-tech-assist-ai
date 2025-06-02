@@ -9,7 +9,10 @@ interface AuthContextType {
   user: User | null;
   userProfile: UserProfile | null;
   loading: boolean;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, metadata?: { name: string; department: string }) => Promise<void>;
   signOut: () => Promise<void>;
+  createDemoAccounts: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -139,6 +142,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const signIn = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    
+    if (error) {
+      throw error;
+    }
+  };
+
+  const signUp = async (email: string, password: string, metadata?: { name: string; department: string }) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: metadata,
+        emailRedirectTo: `${window.location.origin}/`,
+      },
+    });
+    
+    if (error) {
+      throw error;
+    }
+  };
+
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
@@ -153,8 +182,59 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const createDemoAccounts = async () => {
+    const demoAccounts = [
+      {
+        email: 'director@wajir.go.ke',
+        password: 'Demo123!',
+        name: 'ICT Director',
+        department: 'ICT, Trade, Investment and Industry',
+        role: 'admin'
+      },
+      {
+        email: 'ali.salat@wajir.go.ke',
+        password: 'Demo123!',
+        name: 'Ali Salat',
+        department: 'ICT, Trade, Investment and Industry',
+        role: 'ict_officer'
+      },
+      {
+        email: 'user.demo@wajir.go.ke',
+        password: 'Demo123!',
+        name: 'Demo User',
+        department: 'General',
+        role: 'user'
+      }
+    ];
+
+    for (const account of demoAccounts) {
+      try {
+        await supabase.auth.signUp({
+          email: account.email,
+          password: account.password,
+          options: {
+            data: {
+              name: account.name,
+              department: account.department,
+            },
+          },
+        });
+      } catch (error) {
+        console.log(`Demo account ${account.email} may already exist`);
+      }
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, userProfile, loading, signOut }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      userProfile, 
+      loading, 
+      signIn, 
+      signUp, 
+      signOut, 
+      createDemoAccounts 
+    }}>
       {children}
     </AuthContext.Provider>
   );
