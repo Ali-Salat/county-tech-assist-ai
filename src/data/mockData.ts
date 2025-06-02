@@ -1,4 +1,3 @@
-
 export type TicketPriority = 'low' | 'medium' | 'high';
 export type TicketStatus = 'open' | 'in-progress' | 'resolved' | 'closed';
 export type TicketCategory = 
@@ -14,7 +13,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'superuser' | 'ict_officer' | 'user';
+  role: 'superuser' | 'admin' | 'ict_officer' | 'user';
   department: string;
   title?: string;
 }
@@ -69,7 +68,8 @@ export const mockTickets: Ticket[] = [
     createdAt: '2025-05-20T08:30:00Z',
     updatedAt: '2025-05-20T09:15:00Z',
     assignedTo: 'Ali Salat',
-    department: 'ICT, Trade, Investment and Industry',
+    department: 'Finance and Economic Planning',
+    specificOffice: 'Budget Office',
     submittedBy: {
       id: 'user1',
       name: 'Ahmed Hassan',
@@ -86,7 +86,8 @@ export const mockTickets: Ticket[] = [
     status: 'open',
     createdAt: '2025-05-21T10:45:00Z',
     updatedAt: '2025-05-21T10:45:00Z',
-    department: 'ICT, Trade, Investment and Industry',
+    department: 'Health Services',
+    specificOffice: 'Medical Services',
     submittedBy: {
       id: 'user2',
       name: 'Fatima Abdullah',
@@ -104,7 +105,8 @@ export const mockTickets: Ticket[] = [
     createdAt: '2025-05-19T14:20:00Z',
     updatedAt: '2025-05-20T11:30:00Z',
     assignedTo: 'Mohamed Shahid',
-    department: 'ICT, Trade, Investment and Industry',
+    department: 'Finance and Economic Planning',
+    specificOffice: 'Accounting Office',
     submittedBy: {
       id: 'user3',
       name: 'Omar Ibrahim',
@@ -122,7 +124,8 @@ export const mockTickets: Ticket[] = [
     createdAt: '2025-05-18T09:10:00Z',
     updatedAt: '2025-05-19T13:45:00Z',
     assignedTo: 'Ali Salat',
-    department: 'ICT, Trade, Investment and Industry',
+    department: 'Lands, Public Works and Urban Development',
+    specificOffice: 'Physical Planning',
     submittedBy: {
       id: 'user4',
       name: 'Amina Mohammed',
@@ -139,7 +142,8 @@ export const mockTickets: Ticket[] = [
     status: 'open',
     createdAt: '2025-05-21T11:50:00Z',
     updatedAt: '2025-05-21T11:50:00Z',
-    department: 'ICT, Trade, Investment and Industry',
+    department: 'Office of the Governor, Public Service and County Administration',
+    specificOffice: 'Public Relations Office',
     submittedBy: {
       id: 'user5',
       name: 'Yusuf Ahmed',
