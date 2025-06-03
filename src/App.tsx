@@ -7,14 +7,15 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/components/AuthProvider";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import Index from "./pages/Index";
+import { DashboardLayout } from "@/components/DashboardLayout";
+import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="system" storageKey="wajir-ui-theme">
+    <ThemeProvider defaultTheme="light" storageKey="wajir-ui-theme">
       <AuthProvider>
         <TooltipProvider>
           <Toaster />
@@ -23,7 +24,13 @@ const App = () => (
             <Routes>
               <Route path="/" element={
                 <ProtectedRoute>
-                  <Index />
+                  <DashboardLayout 
+                    title="Dashboard" 
+                    description="Overview of your ICT support activities"
+                    breadcrumbs={[{ label: "Home" }]}
+                  >
+                    <Dashboard />
+                  </DashboardLayout>
                 </ProtectedRoute>
               } />
               <Route path="*" element={<NotFound />} />

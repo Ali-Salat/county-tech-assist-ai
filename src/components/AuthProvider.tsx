@@ -49,7 +49,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         if (session?.user) {
           setUser(session.user);
-          await fetchUserProfile(session.user.id, session.user.email);
+          // Use setTimeout to prevent potential recursion
+          setTimeout(() => {
+            fetchUserProfile(session.user.id, session.user.email);
+          }, 0);
         } else {
           setUser(null);
           setUserProfile(null);
@@ -88,71 +91,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           title: existingUser.title
         });
       } else {
-        // Create new user profile with special handling for demo accounts
-        console.log('Creating new user profile for:', email);
-        
-        let role: 'superuser' | 'admin' | 'ict_officer' | 'user' = 'user';
-        let name = email?.split('@')[0] || 'User';
-        let department = 'General Services';
-        let title = 'Staff Member';
-        
-        // Special handling for demo accounts
-        if (email === 'demo.superuser@wajir.go.ke') {
-          role = 'superuser';
-          name = 'Demo Super Administrator';
-          department = 'ICT, Trade, Investment and Industry';
-          title = 'System Administrator';
-        } else if (email === 'demo.admin@wajir.go.ke') {
-          role = 'admin';
-          name = 'Demo Administrator';
-          department = 'ICT, Trade, Investment and Industry';
-          title = 'ICT Administrator';
-        } else if (email === 'demo.user@wajir.go.ke') {
-          role = 'user';
-          name = 'Demo User';
-          department = 'General Services';
-          title = 'Staff Member';
-        } else if (email === 'ellisalat@gmail.com') {
-          role = 'superuser';
-          name = 'Ali Abdi Salat';
-          department = 'ICT, Trade, Investment and Industry';
-          title = 'System Administrator';
-        }
-        
-        const { data: newUser, error: createError } = await supabase
-          .from('users')
-          .insert({
-            id: userId,
-            email: email || '',
-            name: name,
-            role: role,
-            department: department,
-            title: title
-          })
-          .select()
-          .single();
-
-        if (createError) {
-          console.error('Error creating user profile:', createError);
-          toast.error("Failed to create user profile");
-          return;
-        }
-
-        console.log('Created new user:', newUser);
-        setUserProfile({
-          id: newUser.id,
-          name: newUser.name,
-          email: newUser.email,
-          role: newUser.role as 'superuser' | 'admin' | 'ict_officer' | 'user',
-          department: newUser.department,
-          title: newUser.title
-        });
-
-        if (role === 'superuser') {
-          toast.success("Welcome, System Administrator!", {
-            description: "You have been granted super user privileges.",
-          });
-        }
+        console.log('User profile not found, this should not happen for existing accounts');
+        toast.error("User profile not found. Please contact system administrator.");
       }
     } catch (error) {
       console.error('Error in fetchUserProfile:', error);
@@ -200,46 +140,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const createDemoAccounts = async () => {
-    const demoAccounts = [
-      {
-        email: 'demo.superuser@wajir.go.ke',
-        password: 'Demo123!',
-        name: 'Demo Super Administrator',
-        department: 'ICT, Trade, Investment and Industry',
-        role: 'superuser'
-      },
-      {
-        email: 'demo.admin@wajir.go.ke',
-        password: 'Demo123!',
-        name: 'Demo Administrator',
-        department: 'ICT, Trade, Investment and Industry',
-        role: 'admin'
-      },
-      {
-        email: 'demo.user@wajir.go.ke',
-        password: 'Demo123!',
-        name: 'Demo User',
-        department: 'General Services',
-        role: 'user'
-      }
-    ];
-
-    for (const account of demoAccounts) {
-      try {
-        await supabase.auth.signUp({
-          email: account.email,
-          password: account.password,
-          options: {
-            data: {
-              name: account.name,
-              department: account.department,
-            },
-          },
-        });
-      } catch (error) {
-        console.log(`Demo account ${account.email} may already exist`);
-      }
-    }
+    // This function is maintained for compatibility but demo accounts
+    // should already exist in the database
+    console.log('Demo accounts should already exist in the database');
   };
 
   return (
