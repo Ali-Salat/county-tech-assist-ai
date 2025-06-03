@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Settings, Bell, Menu } from "lucide-react";
+import { Settings, Bell, Menu, Shield } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { UserMenu } from "./UserMenu";
 import { useAuth } from "./AuthProvider";
@@ -39,16 +39,19 @@ export function Header() {
                   <p className="text-sm text-blue-200 font-semibold">ICT Department - Help Desk System</p>
                   {userProfile?.role === 'superuser' && (
                     <Badge variant="destructive" className="text-xs px-2 py-0 bg-red-600 animate-pulse">
+                      <Shield className="h-3 w-3 mr-1" />
                       SUPER ADMIN
                     </Badge>
                   )}
                   {userProfile?.role === 'admin' && (
                     <Badge variant="secondary" className="text-xs px-2 py-0 bg-orange-600 text-white">
+                      <Shield className="h-3 w-3 mr-1" />
                       ADMIN
                     </Badge>
                   )}
                   {userProfile?.role === 'ict_officer' && (
                     <Badge variant="outline" className="text-xs px-2 py-0 bg-blue-600 text-white border-blue-400">
+                      <Settings className="h-3 w-3 mr-1" />
                       ICT OFFICER
                     </Badge>
                   )}

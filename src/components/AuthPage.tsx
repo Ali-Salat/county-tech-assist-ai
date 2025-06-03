@@ -1,461 +1,344 @@
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useAuth } from './AuthProvider';
-import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/components/ui/use-toast';
-import { departments } from '@/data/mockData';
-import { Shield, Lock, Users, Computer, Eye, EyeOff, Info, Building, Zap, Award } from 'lucide-react';
+
+import { useState } from "react";
+import { useAuth } from "./AuthProvider";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "@/components/ui/sonner";
+import { Eye, EyeOff, Shield, UserCheck, Crown, User } from "lucide-react";
 
 export function AuthPage() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [department, setDepartment] = useState("");
+  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { signIn, signUp, createDemoAccounts } = useAuth();
-  const navigate = useNavigate();
-  const { toast } = useToast();
+  const { signIn, signUp } = useAuth();
 
-  const [signInData, setSignInData] = useState({
-    email: '',
-    password: '',
-  });
-
-  const [signUpData, setSignUpData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    name: '',
-    department: '',
-  });
-
-  const validatePassword = (password: string): string[] => {
-    const errors = [];
-    if (password.length < 8) errors.push('At least 8 characters long');
-    if (!/[A-Z]/.test(password)) errors.push('At least one uppercase letter');
-    if (!/[a-z]/.test(password)) errors.push('At least one lowercase letter');
-    if (!/\d/.test(password)) errors.push('At least one number');
-    if (!/[!@#$%^&*]/.test(password)) errors.push('At least one special character (!@#$%^&*)');
-    return errors;
-  };
+  const demoAccounts = [
+    {
+      email: 'demo.superuser@wajir.go.ke',
+      name: 'Demo Super Administrator',
+      role: 'superuser',
+      icon: Crown,
+      color: 'bg-red-600 hover:bg-red-700',
+      description: 'Full system access & management'
+    },
+    {
+      email: 'demo.admin@wajir.go.ke',
+      name: 'Demo Administrator',
+      role: 'admin',
+      icon: Shield,
+      color: 'bg-blue-600 hover:bg-blue-700',
+      description: 'Department management & oversight'
+    },
+    {
+      email: 'demo.user@wajir.go.ke',
+      name: 'Demo User',
+      role: 'user',
+      icon: User,
+      color: 'bg-gray-600 hover:bg-gray-700',
+      description: 'Standard user access'
+    }
+  ];
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!signInData.email || !signInData.password) {
-      toast({
-        title: 'Validation Error',
-        description: 'Please fill in all required fields.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    
-    setIsLoading(true);
+    setLoading(true);
     
     try {
-      await signIn(signInData.email, signInData.password);
-      toast({
-        title: 'Welcome back!',
-        description: 'You have been signed in successfully.',
-      });
-      navigate('/');
-    } catch (error: any) {
-      toast({
-        title: 'Sign in failed',
-        description: error.message || 'Please check your credentials and try again.',
-        variant: 'destructive',
-      });
+      await signIn(email, password);
+      toast.success("Signed in successfully!");
+    } catch (error) {
+      console.error('Sign in error:', error);
+      toast.error(error instanceof Error ? error.message : "Failed to sign in");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!signUpData.email || !signUpData.password || !signUpData.confirmPassword || !signUpData.name || !signUpData.department) {
-      toast({
-        title: 'Validation Error',
-        description: 'Please fill in all required fields.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (signUpData.password !== signUpData.confirmPassword) {
-      toast({
-        title: 'Password Mismatch',
-        description: 'Passwords do not match. Please try again.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    const passwordErrors = validatePassword(signUpData.password);
-    if (passwordErrors.length > 0) {
-      toast({
-        title: 'Password Requirements',
-        description: `Password must meet the following requirements: ${passwordErrors.join(', ')}`,
-        variant: 'destructive',
-      });
-      return;
-    }
-    
-    setIsLoading(true);
+    setLoading(true);
     
     try {
-      await signUp(signUpData.email, signUpData.password, {
-        name: signUpData.name,
-        department: signUpData.department,
-      });
-      toast({
-        title: 'Account created!',
-        description: 'Please check your email to verify your account.',
-      });
-    } catch (error: any) {
-      toast({
-        title: 'Sign up failed',
-        description: error.message || 'Please try again.',
-        variant: 'destructive',
-      });
+      await signUp(email, password, { name, department });
+      toast.success("Account created successfully! Please check your email to verify your account.");
+    } catch (error) {
+      console.error('Sign up error:', error);
+      toast.error(error instanceof Error ? error.message : "Failed to create account");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const handleCreateDemoAccounts = async () => {
-    setIsLoading(true);
+  const handleDemoLogin = async (demoEmail: string) => {
+    setLoading(true);
     try {
-      await createDemoAccounts();
-      toast({
-        title: 'Demo accounts created!',
-        description: 'You can now use the demo credentials to test different user roles.',
-      });
+      await signIn(demoEmail, 'Demo123!');
+      toast.success(`Signed in as ${demoEmail}`);
     } catch (error) {
-      toast({
-        title: 'Demo setup failed',
-        description: 'Some demo accounts might already exist.',
-        variant: 'destructive',
-      });
+      console.error('Demo login error:', error);
+      toast.error("Failed to sign in with demo account");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
-      <div className="absolute top-20 left-20 h-64 w-64 bg-primary/20 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-20 right-20 h-48 w-48 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-      
-      <div className="relative z-10 w-full max-w-7xl flex items-center justify-between gap-16 p-4">
-        {/* Left side - Enhanced Branding */}
-        <div className="hidden lg:flex flex-col items-start text-left space-y-8 flex-1 max-w-2xl">
-          <div className="flex items-center space-x-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 flex items-center justify-center p-4">
+      <div className="w-full max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 items-center">
+        {/* Government Branding Section */}
+        <div className="space-y-8 text-center lg:text-left">
+          <div className="flex items-center justify-center lg:justify-start space-x-4">
             <div className="relative">
-              <div className="absolute inset-0 bg-primary/30 rounded-full blur-3xl animate-pulse"></div>
-              <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-2xl animate-pulse delay-500"></div>
+              <div className="absolute inset-0 bg-blue-500/30 rounded-full blur-xl animate-pulse"></div>
               <img 
-                src="/lovable-uploads/825a277b-660c-4190-99eb-c75e7362dbea.png" 
+                src="/lovable-uploads/60407c4d-d926-4d49-85c1-36e4af65d42b.png" 
                 alt="Wajir County Logo" 
-                className="relative h-24 w-24 drop-shadow-2xl"
+                className="relative h-20 w-20 drop-shadow-lg object-contain"
               />
             </div>
             <div>
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-white via-blue-100 to-primary bg-clip-text text-transparent leading-tight">
-                Wajir County
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-900 to-blue-600 bg-clip-text text-transparent">
+                WAJIR COUNTY GOVERNMENT
               </h1>
-              <p className="text-2xl font-semibold text-primary mt-2">Professional ICT Help Desk</p>
-              <p className="text-lg text-slate-300 mt-1">Government Excellence Through Technology</p>
+              <p className="text-lg text-blue-800 font-semibold">ICT Department Help Desk System</p>
             </div>
           </div>
           
-          <div className="space-y-6">
-            <h2 className="text-3xl font-semibold text-white">
-              Enterprise-Grade IT Support Platform
-            </h2>
-            <p className="text-lg text-slate-300 leading-relaxed">
-              Advanced technical support ecosystem designed for government excellence. 
-              Streamlined workflows, intelligent automation, and comprehensive 
-              service management to ensure operational continuity across all county departments.
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold text-slate-800">Secure Access Portal</h2>
+            <p className="text-slate-600 text-lg leading-relaxed">
+              Professional ICT support system designed for government efficiency and security. 
+              Access technical assistance, submit service requests, and track resolution progress.
             </p>
           </div>
-          
-          <div className="grid grid-cols-2 gap-6 w-full">
-            <div className="group flex items-center space-x-4 p-6 bg-gradient-to-br from-white/10 to-white/5 rounded-2xl backdrop-blur-sm border border-white/10 hover:border-primary/30 transition-all duration-300 hover:scale-105">
-              <div className="p-3 bg-green-500/20 rounded-xl group-hover:bg-green-500/30 transition-colors">
-                <Shield className="h-8 w-8 text-green-400" />
-              </div>
-              <div>
-                <h3 className="font-bold text-white text-lg">Secure Infrastructure</h3>
-                <p className="text-sm text-slate-400">Military-grade encryption</p>
-              </div>
-            </div>
-            
-            <div className="group flex items-center space-x-4 p-6 bg-gradient-to-br from-white/10 to-white/5 rounded-2xl backdrop-blur-sm border border-white/10 hover:border-primary/30 transition-all duration-300 hover:scale-105">
-              <div className="p-3 bg-blue-500/20 rounded-xl group-hover:bg-blue-500/30 transition-colors">
-                <Computer className="h-8 w-8 text-blue-400" />
-              </div>
-              <div>
-                <h3 className="font-bold text-white text-lg">Expert Team</h3>
-                <p className="text-sm text-slate-400">24/7 professional support</p>
-              </div>
-            </div>
-            
-            <div className="group flex items-center space-x-4 p-6 bg-gradient-to-br from-white/10 to-white/5 rounded-2xl backdrop-blur-sm border border-white/10 hover:border-primary/30 transition-all duration-300 hover:scale-105">
-              <div className="p-3 bg-purple-500/20 rounded-xl group-hover:bg-purple-500/30 transition-colors">
-                <Users className="h-8 w-8 text-purple-400" />
-              </div>
-              <div>
-                <h3 className="font-bold text-white text-lg">Smart Workflows</h3>
-                <p className="text-sm text-slate-400">AI-powered automation</p>
-              </div>
-            </div>
-            
-            <div className="group flex items-center space-x-4 p-6 bg-gradient-to-br from-white/10 to-white/5 rounded-2xl backdrop-blur-sm border border-white/10 hover:border-primary/30 transition-all duration-300 hover:scale-105">
-              <div className="p-3 bg-primary/20 rounded-xl group-hover:bg-primary/30 transition-colors">
-                <Award className="h-8 w-8 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-bold text-white text-lg">Quality Assurance</h3>
-                <p className="text-sm text-slate-400">ISO certified processes</p>
-              </div>
-            </div>
-          </div>
 
-          <div className="flex items-center space-x-6 text-slate-400">
-            <div className="flex items-center space-x-2">
-              <Building className="h-5 w-5 text-primary" />
-              <span className="text-sm">Government Standards</span>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-white/70 backdrop-blur-sm p-4 rounded-xl border border-blue-200">
+              <h3 className="font-semibold text-blue-900">Secure Authentication</h3>
+              <p className="text-sm text-slate-600">Government-grade security protocols</p>
             </div>
-            <div className="flex items-center space-x-2">
-              <Zap className="h-5 w-5 text-primary" />
-              <span className="text-sm">Real-time Processing</span>
+            <div className="bg-white/70 backdrop-blur-sm p-4 rounded-xl border border-blue-200">
+              <h3 className="font-semibold text-blue-900">24/7 Support</h3>
+              <p className="text-sm text-slate-600">Round-the-clock technical assistance</p>
+            </div>
+            <div className="bg-white/70 backdrop-blur-sm p-4 rounded-xl border border-blue-200">
+              <h3 className="font-semibold text-blue-900">Digital Efficiency</h3>
+              <p className="text-sm text-slate-600">Streamlined government operations</p>
             </div>
           </div>
         </div>
 
-        {/* Right side - Enhanced Auth Form */}
-        <div className="w-full max-w-md lg:max-w-lg">
-          <Card className="shadow-2xl border-0 bg-gradient-to-br from-white/95 to-white/90 dark:from-slate-900/95 dark:to-slate-800/95 backdrop-blur-xl">
-            <CardHeader className="text-center space-y-6 pb-8">
-              <div className="flex justify-center lg:hidden mb-6">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse"></div>
-                  <img 
-                    src="/lovable-uploads/825a277b-660c-4190-99eb-c75e7362dbea.png" 
-                    alt="Wajir County Logo" 
-                    className="relative h-20 w-20 drop-shadow-lg"
-                  />
-                </div>
-              </div>
-              <div>
-                <CardTitle className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-                  Professional Access Portal
-                </CardTitle>
-                <CardDescription className="text-lg mt-3 text-slate-600">
-                  Secure authentication for authorized government personnel
-                </CardDescription>
-              </div>
+        {/* Authentication Section */}
+        <div className="space-y-6">
+          <Card className="card-professional shadow-2xl border-0">
+            <CardHeader className="bg-gradient-to-r from-blue-900 to-blue-800 text-white rounded-t-lg">
+              <CardTitle className="text-2xl text-center">System Access</CardTitle>
+              <CardDescription className="text-blue-100 text-center">
+                Sign in to access the ICT Help Desk System
+              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-8">
+            <CardContent className="p-8">
               <Tabs defaultValue="signin" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-8 h-12 bg-slate-100">
-                  <TabsTrigger value="signin" className="font-semibold text-base h-10">Access System</TabsTrigger>
-                  <TabsTrigger value="signup" className="font-semibold text-base h-10">Register Account</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-2 mb-6">
+                  <TabsTrigger value="signin" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+                    Sign In
+                  </TabsTrigger>
+                  <TabsTrigger value="signup" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+                    Register
+                  </TabsTrigger>
                 </TabsList>
                 
-                <TabsContent value="signin" className="space-y-6">
-                  <form onSubmit={handleSignIn} className="space-y-5">
-                    <div className="space-y-3">
-                      <Label htmlFor="signin-email" className="text-base font-semibold text-slate-700">Official Email Address</Label>
+                <TabsContent value="signin">
+                  <form onSubmit={handleSignIn} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="signin-email" className="text-slate-700 font-medium">
+                        Official Email Address
+                      </Label>
                       <Input
                         id="signin-email"
                         type="email"
-                        placeholder="your.email@wajir.go.ke"
-                        value={signInData.email}
-                        onChange={(e) => setSignInData(prev => ({ ...prev, email: e.target.value }))}
-                        className="h-12 text-base border-2 focus:border-primary"
+                        placeholder="your.name@wajir.go.ke"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         required
+                        className="h-12 border-2 border-slate-300 focus:border-blue-500"
                       />
                     </div>
-                    <div className="space-y-3">
-                      <Label htmlFor="signin-password" className="text-base font-semibold text-slate-700">Password</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="signin-password" className="text-slate-700 font-medium">
+                        Password
+                      </Label>
                       <div className="relative">
                         <Input
                           id="signin-password"
                           type={showPassword ? "text" : "password"}
-                          placeholder="Enter your secure password"
-                          value={signInData.password}
-                          onChange={(e) => setSignInData(prev => ({ ...prev, password: e.target.value }))}
-                          className="h-12 text-base border-2 focus:border-primary pr-12"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
                           required
+                          className="h-12 border-2 border-slate-300 focus:border-blue-500 pr-10"
                         />
                         <Button
                           type="button"
                           variant="ghost"
-                          size="icon"
-                          className="absolute right-0 top-0 h-12 w-12"
+                          size="sm"
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
                           onClick={() => setShowPassword(!showPassword)}
                         >
-                          {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </Button>
                       </div>
                     </div>
-                    <Button type="submit" className="w-full h-12 text-base font-semibold bg-gradient-to-r from-primary to-orange-500 hover:from-primary/90 hover:to-orange-500/90" disabled={isLoading}>
-                      {isLoading ? 'Authenticating...' : 'Access System'}
+                    <Button 
+                      type="submit" 
+                      className="w-full h-12 btn-professional text-lg font-semibold"
+                      disabled={loading}
+                    >
+                      {loading ? "Authenticating..." : "Sign In Securely"}
                     </Button>
                   </form>
                 </TabsContent>
                 
-                <TabsContent value="signup" className="space-y-6">
-                  <form onSubmit={handleSignUp} className="space-y-5">
-                    <div className="space-y-3">
-                      <Label htmlFor="signup-name" className="text-base font-semibold text-slate-700">Full Name</Label>
-                      <Input
-                        id="signup-name"
-                        type="text"
-                        placeholder="Your complete official name"
-                        value={signUpData.name}
-                        onChange={(e) => setSignUpData(prev => ({ ...prev, name: e.target.value }))}
-                        className="h-12 text-base border-2 focus:border-primary"
-                        required
-                      />
+                <TabsContent value="signup">
+                  <form onSubmit={handleSignUp} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-name" className="text-slate-700 font-medium">
+                          Full Name
+                        </Label>
+                        <Input
+                          id="signup-name"
+                          type="text"
+                          placeholder="Your full name"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          required
+                          className="h-12 border-2 border-slate-300 focus:border-blue-500"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-department" className="text-slate-700 font-medium">
+                          Department
+                        </Label>
+                        <Input
+                          id="signup-department"
+                          type="text"
+                          placeholder="Your department"
+                          value={department}
+                          onChange={(e) => setDepartment(e.target.value)}
+                          required
+                          className="h-12 border-2 border-slate-300 focus:border-blue-500"
+                        />
+                      </div>
                     </div>
-                    <div className="space-y-3">
-                      <Label htmlFor="signup-email" className="text-base font-semibold text-slate-700">Official Email Address</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-email" className="text-slate-700 font-medium">
+                        Official Email Address
+                      </Label>
                       <Input
                         id="signup-email"
                         type="email"
-                        placeholder="your.email@wajir.go.ke"
-                        value={signUpData.email}
-                        onChange={(e) => setSignUpData(prev => ({ ...prev, email: e.target.value }))}
-                        className="h-12 text-base border-2 focus:border-primary"
+                        placeholder="your.name@wajir.go.ke"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         required
+                        className="h-12 border-2 border-slate-300 focus:border-blue-500"
                       />
                     </div>
-                    <div className="space-y-3">
-                      <Label htmlFor="signup-department" className="text-base font-semibold text-slate-700">Department/Ministry</Label>
-                      <Select value={signUpData.department} onValueChange={(value) => setSignUpData(prev => ({ ...prev, department: value }))}>
-                        <SelectTrigger className="h-12 text-base border-2 focus:border-primary">
-                          <SelectValue placeholder="Select your department" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {departments.map((dept) => (
-                            <SelectItem key={dept} value={dept} className="text-base">
-                              {dept}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-3">
-                      <Label htmlFor="signup-password" className="text-base font-semibold text-slate-700">Secure Password</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-password" className="text-slate-700 font-medium">
+                        Password
+                      </Label>
                       <div className="relative">
                         <Input
                           id="signup-password"
                           type={showPassword ? "text" : "password"}
-                          placeholder="Create a strong password"
-                          value={signUpData.password}
-                          onChange={(e) => setSignUpData(prev => ({ ...prev, password: e.target.value }))}
-                          className="h-12 text-base border-2 focus:border-primary pr-12"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
                           required
+                          className="h-12 border-2 border-slate-300 focus:border-blue-500 pr-10"
                         />
                         <Button
                           type="button"
                           variant="ghost"
-                          size="icon"
-                          className="absolute right-0 top-0 h-12 w-12"
+                          size="sm"
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
                           onClick={() => setShowPassword(!showPassword)}
                         >
-                          {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </Button>
                       </div>
                     </div>
-                    <div className="space-y-3">
-                      <Label htmlFor="confirm-password" className="text-base font-semibold text-slate-700">Confirm Password</Label>
-                      <div className="relative">
-                        <Input
-                          id="confirm-password"
-                          type={showConfirmPassword ? "text" : "password"}
-                          placeholder="Confirm your password"
-                          value={signUpData.confirmPassword}
-                          onChange={(e) => setSignUpData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                          className="h-12 text-base border-2 focus:border-primary pr-12"
-                          required
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="absolute right-0 top-0 h-12 w-12"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        >
-                          {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="p-4 bg-slate-50 rounded-lg border">
-                      <p className="font-semibold text-sm text-slate-700 mb-2">Security Requirements:</p>
-                      <ul className="space-y-1 text-xs text-slate-600">
-                        <li>• Minimum 8 characters with complexity requirements</li>
-                        <li>• Must include uppercase, lowercase, numbers & symbols</li>
-                        <li>• Regular security updates required</li>
-                      </ul>
-                    </div>
-                    <Button type="submit" className="w-full h-12 text-base font-semibold bg-gradient-to-r from-primary to-orange-500 hover:from-primary/90 hover:to-orange-500/90" disabled={isLoading}>
-                      {isLoading ? 'Creating Account...' : 'Register Account'}
+                    <Button 
+                      type="submit" 
+                      className="w-full h-12 btn-professional text-lg font-semibold"
+                      disabled={loading}
+                    >
+                      {loading ? "Creating Account..." : "Register Account"}
                     </Button>
                   </form>
                 </TabsContent>
               </Tabs>
+            </CardContent>
+          </Card>
+
+          {/* Demo Accounts Section */}
+          <Card className="card-professional shadow-xl border-0">
+            <CardHeader className="bg-gradient-to-r from-slate-800 to-slate-700 text-white rounded-t-lg">
+              <CardTitle className="text-xl text-center flex items-center justify-center gap-2">
+                <UserCheck className="h-5 w-5" />
+                Demo Access Accounts
+              </CardTitle>
+              <CardDescription className="text-slate-200 text-center">
+                Click to instantly access with pre-configured demo accounts
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="space-y-3">
+                {demoAccounts.map((account) => {
+                  const IconComponent = account.icon;
+                  return (
+                    <Button
+                      key={account.email}
+                      onClick={() => handleDemoLogin(account.email)}
+                      disabled={loading}
+                      variant="outline"
+                      className={`w-full h-16 justify-start gap-4 border-2 hover:border-transparent transition-all duration-300 ${account.color} hover:text-white`}
+                    >
+                      <div className="flex items-center gap-4 w-full">
+                        <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
+                          <IconComponent className="h-5 w-5" />
+                        </div>
+                        <div className="flex-1 text-left">
+                          <div className="font-semibold">{account.name}</div>
+                          <div className="text-sm opacity-80">{account.description}</div>
+                        </div>
+                        <Badge variant="secondary" className="bg-white/20 text-current border-0">
+                          {account.role.toUpperCase()}
+                        </Badge>
+                      </div>
+                    </Button>
+                  );
+                })}
+              </div>
               
-              <div className="border-t pt-8">
-                <Alert className="mb-6 border-primary/20 bg-primary/5">
-                  <Info className="h-5 w-5 text-primary" />
-                  <AlertDescription className="text-base">
-                    <strong>System Testing:</strong> Demo accounts available for role-based testing and system evaluation.
-                  </AlertDescription>
-                </Alert>
-                <Button 
-                  variant="outline" 
-                  className="w-full h-12 text-base font-semibold border-2 hover:bg-slate-50" 
-                  onClick={handleCreateDemoAccounts}
-                  disabled={isLoading}
-                >
-                  Initialize Demo Environment
-                </Button>
-                <div className="mt-6 p-4 bg-slate-50 rounded-lg text-sm text-slate-600 space-y-2">
-                  <div className="font-semibold text-slate-700 mb-3">Available Test Accounts:</div>
-                  <div className="grid grid-cols-1 gap-2 text-xs">
-                    <div className="bg-red-50 p-2 rounded border-l-4 border-red-500">
-                      <strong>System Admin:</strong> ellisalat@gmail.com / SuperUser123!
-                    </div>
-                    <div className="bg-blue-50 p-2 rounded border-l-4 border-blue-500">
-                      <strong>ICT Director:</strong> director@wajir.go.ke / Demo123!
-                    </div>
-                    <div className="bg-green-50 p-2 rounded border-l-4 border-green-500">
-                      <strong>Senior Officer:</strong> ali.salat@wajir.go.ke / Demo123!
-                    </div>
-                    <div className="bg-gray-50 p-2 rounded border-l-4 border-gray-500">
-                      <strong>Standard User:</strong> user.demo@wajir.go.ke / Demo123!
-                    </div>
-                  </div>
+              <Separator className="my-4" />
+              
+              <div className="text-center space-y-2">
+                <p className="text-sm text-slate-600 font-medium">Demo Account Credentials</p>
+                <div className="bg-slate-100 p-3 rounded-lg">
+                  <p className="text-sm font-mono text-slate-800">Password: <strong>Demo123!</strong></p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          
-          <div className="mt-8 text-center">
-            <p className="text-sm text-slate-400">
-              © 2024 Wajir County Government. Secure access for authorized personnel only.
-            </p>
-          </div>
         </div>
       </div>
     </div>

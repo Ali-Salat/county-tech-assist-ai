@@ -69,7 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data: existingUser, error: fetchError } = await supabase
         .from('users')
         .select('*')
-        .eq('id', userId)
+        .eq('email', email || '')
         .maybeSingle();
 
       if (fetchError) {
@@ -88,18 +88,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           title: existingUser.title
         });
       } else {
-        // Create new user profile with special handling for ellisalat@gmail.com
+        // Create new user profile with special handling for demo accounts
         console.log('Creating new user profile for:', email);
         
         let role: 'superuser' | 'admin' | 'ict_officer' | 'user' = 'user';
         let name = email?.split('@')[0] || 'User';
-        let department = 'General';
+        let department = 'General Services';
+        let title = 'Staff Member';
         
-        // Special handling for ellisalat@gmail.com
-        if (email === 'ellisalat@gmail.com') {
+        // Special handling for demo accounts
+        if (email === 'demo.superuser@wajir.go.ke') {
           role = 'superuser';
-          name = 'System Administrator';
+          name = 'Demo Super Administrator';
           department = 'ICT, Trade, Investment and Industry';
+          title = 'System Administrator';
+        } else if (email === 'demo.admin@wajir.go.ke') {
+          role = 'admin';
+          name = 'Demo Administrator';
+          department = 'ICT, Trade, Investment and Industry';
+          title = 'ICT Administrator';
+        } else if (email === 'demo.user@wajir.go.ke') {
+          role = 'user';
+          name = 'Demo User';
+          department = 'General Services';
+          title = 'Staff Member';
+        } else if (email === 'ellisalat@gmail.com') {
+          role = 'superuser';
+          name = 'Ali Abdi Salat';
+          department = 'ICT, Trade, Investment and Industry';
+          title = 'System Administrator';
         }
         
         const { data: newUser, error: createError } = await supabase
@@ -110,7 +127,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             name: name,
             role: role,
             department: department,
-            title: role === 'superuser' ? 'System Administrator' : undefined
+            title: title
           })
           .select()
           .single();
@@ -185,24 +202,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const createDemoAccounts = async () => {
     const demoAccounts = [
       {
-        email: 'director@wajir.go.ke',
+        email: 'demo.superuser@wajir.go.ke',
         password: 'Demo123!',
-        name: 'ICT Director',
+        name: 'Demo Super Administrator',
+        department: 'ICT, Trade, Investment and Industry',
+        role: 'superuser'
+      },
+      {
+        email: 'demo.admin@wajir.go.ke',
+        password: 'Demo123!',
+        name: 'Demo Administrator',
         department: 'ICT, Trade, Investment and Industry',
         role: 'admin'
       },
       {
-        email: 'ali.salat@wajir.go.ke',
-        password: 'Demo123!',
-        name: 'Ali Salat',
-        department: 'ICT, Trade, Investment and Industry',
-        role: 'ict_officer'
-      },
-      {
-        email: 'user.demo@wajir.go.ke',
+        email: 'demo.user@wajir.go.ke',
         password: 'Demo123!',
         name: 'Demo User',
-        department: 'General',
+        department: 'General Services',
         role: 'user'
       }
     ];
