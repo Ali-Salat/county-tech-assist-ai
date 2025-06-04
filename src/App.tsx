@@ -13,6 +13,9 @@ import TicketsPage from "./pages/TicketsPage";
 import UsersPage from "./pages/UsersPage";
 import ReportsPage from "./pages/ReportsPage";
 import SettingsPage from "./pages/SettingsPage";
+import SubmitTicketPage from "./pages/SubmitTicketPage";
+import MyTicketsPage from "./pages/MyTicketsPage";
+import KnowledgeBasePage from "./pages/KnowledgeBasePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,6 +48,39 @@ const App = () => (
                     breadcrumbs={[{ label: "Home", href: "/" }, { label: "Tickets" }]}
                   >
                     <TicketsPage />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/submit-ticket" element={
+                <ProtectedRoute>
+                  <DashboardLayout 
+                    title="Submit Ticket" 
+                    description="Create a new support request"
+                    breadcrumbs={[{ label: "Home", href: "/" }, { label: "Submit Ticket" }]}
+                  >
+                    <SubmitTicketPage />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/my-tickets" element={
+                <ProtectedRoute>
+                  <DashboardLayout 
+                    title="My Tickets" 
+                    description="View your submitted tickets"
+                    breadcrumbs={[{ label: "Home", href: "/" }, { label: "My Tickets" }]}
+                  >
+                    <MyTicketsPage />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/knowledge-base" element={
+                <ProtectedRoute>
+                  <DashboardLayout 
+                    title="Knowledge Base" 
+                    description="Self-help articles and solutions"
+                    breadcrumbs={[{ label: "Home", href: "/" }, { label: "Knowledge Base" }]}
+                  >
+                    <KnowledgeBasePage />
                   </DashboardLayout>
                 </ProtectedRoute>
               } />

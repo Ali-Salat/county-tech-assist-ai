@@ -1,25 +1,13 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TicketForm } from "./TicketForm";
-import { TicketList } from "./TicketList";
 import { useQuery } from "@tanstack/react-query";
 import { getTickets } from "@/utils/ticketUtils";
 
 export function TicketDashboard() {
   return (
-    <Tabs defaultValue="new" className="w-full">
-      <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-4">
-        <TabsTrigger value="new">New Ticket</TabsTrigger>
-        <TabsTrigger value="existing">My Tickets</TabsTrigger>
-      </TabsList>
-      <TabsContent value="new">
-        <TicketForm />
-      </TabsContent>
-      <TabsContent value="existing">
-        <TicketList />
-      </TabsContent>
-    </Tabs>
+    <div className="space-y-6">
+      <DashboardStats />
+    </div>
   );
 }
 
