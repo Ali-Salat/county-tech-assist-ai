@@ -1,206 +1,302 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DashboardStats } from "@/components/TicketDashboard";
-import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { getTickets } from "@/utils/ticketUtils";
+import { useAuth } from "@/components/AuthProvider";
 import { 
-  PlusCircle, 
-  Search, 
-  BookOpen, 
-  BarChart3, 
+  Ticket, 
+  Clock, 
+  CheckCircle, 
+  AlertTriangle, 
   Users, 
-  Settings,
-  Clock,
-  CheckCircle,
-  AlertCircle,
-  TrendingUp
+  TrendingUp,
+  Plus,
+  Activity
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function Dashboard() {
+  const { userProfile } = useAuth();
+  const { data: tickets = [], isLoading } = useQuery({
+    queryKey: ['tickets'],
+    queryFn: getTickets,
+  });
+
+  const userTickets = userProfile?.role === 'user' 
+    ? tickets.filter(ticket => ticket.submittedBy.id === userProfile?.id)
+    : tickets;
+
+  const openTickets = userTickets.filter(t => t.status === 'open').length;
+  const inProgressTickets = userTickets.filter(t => t.status === 'in-progress').length;
+  const resolvedTickets = userTickets.filter(t => t.status === 'resolved').length;
+  const closedTickets = userTickets.filter(t => t.status === 'closed').length;
+
+  const recentTickets = userTickets
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 5);
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 17) return "Good afternoon";
+    return "Good evening";
+  };
+
+  const getRoleSpecificStats = () => {
+    if (userProfile?.role === 'user') {
+      return [
+        {
+          title: "My Open Tickets",
+          value: openTickets,
+          description: "Tickets waiting for response",
+          icon: Ticket,
+          color: "text-orange-600"
+        },
+        {
+          title: "In Progress",
+          value: inProgressTickets,
+          description: "Being worked on",
+          icon: Clock,
+          color: "text-blue-600"
+        },
+        {
+          title: "Resolved",
+          value: resolvedTickets,
+          description: "Recently resolved",
+          icon: CheckCircle,
+          color: "text-green-600"
+        },
+        {
+          title: "Total Tickets",
+          value: userTickets.length,
+          description: "All time submissions",
+          icon: Activity,
+          color: "text-purple-600"
+        }
+      ];
+    } else {
+      return [
+        {
+          title: "Open Tickets",
+          value: openTickets,
+          description: "Need attention",
+          icon: AlertTriangle,
+          color: "text-red-600"
+        },
+        {
+          title: "In Progress",
+          value: inProgressTickets,
+          description: "Being resolved",
+          icon: Clock,
+          color: "text-blue-600"
+        },
+        {
+          title: "Resolved Today",
+          value: resolvedTickets,
+          description: "Completed tickets",
+          icon: CheckCircle,
+          color: "text-green-600"
+        },
+        {
+          title: "Total Active",
+          value: openTickets + inProgressTickets,
+          description: "Requiring action",
+          icon: TrendingUp,
+          color: "text-purple-600"
+        }
+      ];
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {[1, 2, 3, 4].map((i) => (
+            <Card key={i}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Loading...</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">...</div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg p-8 text-white">
-        <h1 className="text-3xl font-bold mb-2">Welcome to Wajir County ICT Help Desk</h1>
-        <p className="text-blue-100 text-lg">
-          Your central hub for all ICT support services and system management
-        </p>
+      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">
+              {getGreeting()}, {userProfile?.name}!
+            </h1>
+            <p className="text-blue-100 mt-1">
+              Welcome to the Wajir County ICT Help Desk System
+            </p>
+            <Badge variant="secondary" className="mt-2 bg-blue-500/20 text-blue-100 border-blue-400">
+              {userProfile?.role?.replace('_', ' ').toUpperCase()} - {userProfile?.department}
+            </Badge>
+          </div>
+          <div className="hidden md:flex items-center space-x-4">
+            <Link to="/submit-ticket">
+              <Button variant="secondary" className="bg-white/10 hover:bg-white/20 text-white border-white/20">
+                <Plus className="h-4 w-4 mr-2" />
+                New Ticket
+              </Button>
+            </Link>
+          </div>
+        </div>
       </div>
 
-      {/* Statistics */}
-      <DashboardStats />
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Link to="/submit-ticket">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer border-blue-200 hover:border-blue-300">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <PlusCircle className="h-6 w-6 text-blue-600" />
-                </div>
-                <div>
-                  <CardTitle className="text-lg">Submit Ticket</CardTitle>
-                  <CardDescription>Create new support request</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-          </Card>
-        </Link>
-
-        <Link to="/my-tickets">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer border-green-200 hover:border-green-300">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <Search className="h-6 w-6 text-green-600" />
-                </div>
-                <div>
-                  <CardTitle className="text-lg">My Tickets</CardTitle>
-                  <CardDescription>Track your requests</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-          </Card>
-        </Link>
-
-        <Link to="/knowledge-base">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-200 hover:border-orange-300">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-orange-100 rounded-lg">
-                  <BookOpen className="h-6 w-6 text-orange-600" />
-                </div>
-                <div>
-                  <CardTitle className="text-lg">Knowledge Base</CardTitle>
-                  <CardDescription>Self-help articles</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-          </Card>
-        </Link>
-
-        <Link to="/reports">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer border-purple-200 hover:border-purple-300">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <BarChart3 className="h-6 w-6 text-purple-600" />
-                </div>
-                <div>
-                  <CardTitle className="text-lg">Reports</CardTitle>
-                  <CardDescription>System analytics</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-          </Card>
-        </Link>
+      {/* Statistics Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {getRoleSpecificStats().map((stat, index) => {
+          const Icon = stat.icon;
+          return (
+            <Card key={index} className="hover:shadow-lg transition-shadow">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+                <Icon className={`h-5 w-5 ${stat.color}`} />
+              </CardHeader>
+              <CardContent>
+                <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
+                <p className="text-xs text-muted-foreground">{stat.description}</p>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
-      {/* Recent Activity & System Status */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Recent Activity */}
+      <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              Recent Activity
+              <Activity className="h-5 w-5" />
+              Recent Tickets
             </CardTitle>
-            <CardDescription>Latest updates in the system</CardDescription>
+            <CardDescription>
+              {userProfile?.role === 'user' ? 'Your latest submissions' : 'Latest system activity'}
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-              <CheckCircle className="h-5 w-5 text-green-600" />
-              <div className="flex-1">
-                <p className="text-sm font-medium">Ticket #TK-2024-001 resolved</p>
-                <p className="text-xs text-slate-600">2 minutes ago</p>
+          <CardContent>
+            {recentTickets.length > 0 ? (
+              <div className="space-y-4">
+                {recentTickets.map((ticket) => (
+                  <div key={ticket.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-sm">{ticket.title}</h4>
+                      <p className="text-xs text-muted-foreground">
+                        {ticket.category} • {new Date(ticket.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <Badge 
+                      variant={
+                        ticket.status === 'open' ? 'destructive' :
+                        ticket.status === 'in-progress' ? 'default' :
+                        ticket.status === 'resolved' ? 'secondary' : 'outline'
+                      }
+                      className="text-xs"
+                    >
+                      {ticket.status.replace('-', ' ')}
+                    </Badge>
+                  </div>
+                ))}
+                <div className="pt-2">
+                  <Link to={userProfile?.role === 'user' ? '/my-tickets' : '/tickets'}>
+                    <Button variant="outline" className="w-full">
+                      View All Tickets
+                    </Button>
+                  </Link>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-              <PlusCircle className="h-5 w-5 text-blue-600" />
-              <div className="flex-1">
-                <p className="text-sm font-medium">New ticket submitted</p>
-                <p className="text-xs text-slate-600">15 minutes ago</p>
+            ) : (
+              <div className="text-center py-6">
+                <Ticket className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">No tickets yet</p>
+                <Link to="/submit-ticket">
+                  <Button className="mt-2">Submit Your First Ticket</Button>
+                </Link>
               </div>
-            </div>
-            <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg">
-              <AlertCircle className="h-5 w-5 text-orange-600" />
-              <div className="flex-1">
-                <p className="text-sm font-medium">High priority ticket assigned</p>
-                <p className="text-xs text-slate-600">1 hour ago</p>
-              </div>
-            </div>
+            )}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
-              System Performance
+              <Users className="h-5 w-5" />
+              Quick Actions
             </CardTitle>
-            <CardDescription>Current system health metrics</CardDescription>
+            <CardDescription>
+              Common tasks and shortcuts
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>System Uptime</span>
-                <span className="font-medium text-green-600">99.9%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-green-600 h-2 rounded-full" style={{ width: '99.9%' }}></div>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Response Time</span>
-                <span className="font-medium text-blue-600">2.3s avg</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-blue-600 h-2 rounded-full" style={{ width: '85%' }}></div>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>User Satisfaction</span>
-                <span className="font-medium text-purple-600">94%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-purple-600 h-2 rounded-full" style={{ width: '94%' }}></div>
-              </div>
+          <CardContent>
+            <div className="space-y-3">
+              <Link to="/submit-ticket" className="block">
+                <Button variant="outline" className="w-full justify-start">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Submit New Ticket
+                </Button>
+              </Link>
+              <Link to="/knowledge-base" className="block">
+                <Button variant="outline" className="w-full justify-start">
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Browse Knowledge Base
+                </Button>
+              </Link>
+              {userProfile?.role !== 'user' && (
+                <>
+                  <Link to="/tickets" className="block">
+                    <Button variant="outline" className="w-full justify-start">
+                      <Activity className="h-4 w-4 mr-2" />
+                      Manage All Tickets
+                    </Button>
+                  </Link>
+                  <Link to="/reports" className="block">
+                    <Button variant="outline" className="w-full justify-start">
+                      <TrendingUp className="h-4 w-4 mr-2" />
+                      View Reports
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Admin Quick Links (conditionally shown based on user role) */}
-      <Card className="bg-slate-50 border-slate-200">
+      {/* System Status */}
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
-            Administrative Functions
+            <CheckCircle className="h-5 w-5 text-green-600" />
+            System Status
           </CardTitle>
-          <CardDescription>Quick access to system management tools</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Link to="/users">
-              <Button variant="outline" className="w-full justify-start">
-                <Users className="h-4 w-4 mr-2" />
-                User Management
-              </Button>
-            </Link>
-            <Link to="/settings">
-              <Button variant="outline" className="w-full justify-start">
-                <Settings className="h-4 w-4 mr-2" />
-                System Settings
-              </Button>
-            </Link>
-            <Link to="/reports">
-              <Button variant="outline" className="w-full justify-start">
-                <BarChart3 className="h-4 w-4 mr-2" />
-                Advanced Reports
-              </Button>
-            </Link>
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-sm">Help Desk Online</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-sm">Email System Active</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-sm">Database Connected</span>
+            </div>
           </div>
         </CardContent>
       </Card>

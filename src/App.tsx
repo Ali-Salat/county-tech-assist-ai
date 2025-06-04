@@ -18,7 +18,14 @@ import MyTicketsPage from "./pages/MyTicketsPage";
 import KnowledgeBasePage from "./pages/KnowledgeBasePage";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -40,6 +47,7 @@ const App = () => (
                   </DashboardLayout>
                 </ProtectedRoute>
               } />
+              
               <Route path="/tickets" element={
                 <ProtectedRoute>
                   <DashboardLayout 
@@ -51,6 +59,7 @@ const App = () => (
                   </DashboardLayout>
                 </ProtectedRoute>
               } />
+              
               <Route path="/submit-ticket" element={
                 <ProtectedRoute>
                   <DashboardLayout 
@@ -62,6 +71,7 @@ const App = () => (
                   </DashboardLayout>
                 </ProtectedRoute>
               } />
+              
               <Route path="/my-tickets" element={
                 <ProtectedRoute>
                   <DashboardLayout 
@@ -73,6 +83,7 @@ const App = () => (
                   </DashboardLayout>
                 </ProtectedRoute>
               } />
+              
               <Route path="/knowledge-base" element={
                 <ProtectedRoute>
                   <DashboardLayout 
@@ -84,6 +95,7 @@ const App = () => (
                   </DashboardLayout>
                 </ProtectedRoute>
               } />
+              
               <Route path="/users" element={
                 <ProtectedRoute>
                   <DashboardLayout 
@@ -95,6 +107,7 @@ const App = () => (
                   </DashboardLayout>
                 </ProtectedRoute>
               } />
+              
               <Route path="/reports" element={
                 <ProtectedRoute>
                   <DashboardLayout 
@@ -106,6 +119,7 @@ const App = () => (
                   </DashboardLayout>
                 </ProtectedRoute>
               } />
+              
               <Route path="/settings" element={
                 <ProtectedRoute>
                   <DashboardLayout 
@@ -117,6 +131,7 @@ const App = () => (
                   </DashboardLayout>
                 </ProtectedRoute>
               } />
+              
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

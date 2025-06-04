@@ -23,26 +23,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
-    const getSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        console.log('Initial session:', session);
-        
-        if (session?.user) {
-          setUser(session.user);
-          await fetchUserProfile(session.user.id, session.user.email);
-        }
-      } catch (error) {
-        console.error('Error getting session:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getSession();
-
-    // Listen for auth changes
+    // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state changed:', event, session);
@@ -60,6 +41,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
       }
     );
+
+    // Then get initial session
+    const getInitialSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log('Initial session:', session);
+        
+        if (session?.user) {
+          setUser(session.user);
+          await fetchUserProfile(session.user.id, session.user.email);
+        }
+      } catch (error) {
+        console.error('Error getting session:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getInitialSession();
 
     return () => subscription.unsubscribe();
   }, []);
@@ -91,36 +91,80 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           title: existingUser.title
         });
       } else {
-        console.log('User profile not found, this should not happen for existing accounts');
-        toast.error("User profile not found. Please contact system administrator.");
+        console.log('User profile not found, creating default profile');
+        // Create a default user profile if none exists
+        const { data: newUser, error: createError } = await supabase
+          .from('users')
+          .insert({
+            id: userId,
+            email: email || '',
+            name: email?.split('@')[0] || 'User',
+            role: 'user',
+            department: 'General',
+            title: 'Staff Member'
+          })
+          .select()
+          .single();
+
+        if (createError) {
+          console.error('Error creating user profile:', createError);
+          toast.error("Error creating user profile. Please contact system administrator.");
+        } else {
+          setUserProfile({
+            id: newUser.id,
+            name: newUser.name,
+            email: newUser.email,
+            role: newUser.role as 'superuser' | 'admin' | 'ict_officer' | 'user',
+            department: newUser.department,
+            title: newUser.title
+          });
+          toast.success("Welcome! Your profile has been created.");
+        }
       }
     } catch (error) {
       console.error('Error in fetchUserProfile:', error);
+      toast.error("Error loading user profile. Please try refreshing the page.");
     }
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    
-    if (error) {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast.success("Signed in successfully!");
+    } catch (error: any) {
+      console.error('Sign in error:', error);
+      toast.error(error.message || "Failed to sign in");
       throw error;
     }
   };
 
   const signUp = async (email: string, password: string, metadata?: { name: string; department: string }) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: metadata,
-        emailRedirectTo: `${window.location.origin}/`,
-      },
-    });
-    
-    if (error) {
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: metadata,
+          emailRedirectTo: `${window.location.origin}/`,
+        },
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast.success("Account created successfully! Please check your email to verify your account.");
+    } catch (error: any) {
+      console.error('Sign up error:', error);
+      toast.error(error.message || "Failed to create account");
       throw error;
     }
   };
@@ -140,9 +184,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const createDemoAccounts = async () => {
-    // This function is maintained for compatibility but demo accounts
-    // should already exist in the database
     console.log('Demo accounts should already exist in the database');
+    toast.info("Demo accounts are already available in the system");
   };
 
   return (

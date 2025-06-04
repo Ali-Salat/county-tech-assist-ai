@@ -16,7 +16,8 @@ import {
   Menu,
   X,
   HelpCircle,
-  Archive
+  Archive,
+  BookOpen
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -47,13 +48,19 @@ export function Sidebar() {
     {
       title: "All Tickets",
       icon: Archive,
-      href: "/all-tickets",
+      href: "/tickets",
       roles: ["ict_officer", "admin", "superuser"]
     },
     {
-      title: "Analytics",
+      title: "Knowledge Base",
+      icon: BookOpen,
+      href: "/knowledge-base",
+      roles: ["user", "ict_officer", "admin", "superuser"]
+    },
+    {
+      title: "Reports",
       icon: BarChart3,
-      href: "/analytics",
+      href: "/reports",
       roles: ["ict_officer", "admin", "superuser"]
     },
     {
@@ -67,12 +74,6 @@ export function Sidebar() {
       icon: Settings,
       href: "/settings",
       roles: ["superuser"]
-    },
-    {
-      title: "Help & Support",
-      icon: HelpCircle,
-      href: "/help",
-      roles: ["user", "ict_officer", "admin", "superuser"]
     }
   ];
 
