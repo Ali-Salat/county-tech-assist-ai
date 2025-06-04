@@ -9,7 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/components/ui/sonner";
-import { Eye, EyeOff, Shield, UserCheck, Crown, User } from "lucide-react";
+import { Eye, EyeOff, Shield, UserCheck, Crown, User, ArrowLeft } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export function AuthPage() {
   const [email, setEmail] = useState("");
@@ -18,6 +19,8 @@ export function AuthPage() {
   const [department, setDepartment] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
   const { signIn, signUp } = useAuth();
 
   const demoAccounts = [
@@ -77,6 +80,28 @@ export function AuthPage() {
     }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/`,
+      });
+      
+      if (error) throw error;
+      
+      toast.success("Password reset email sent! Please check your inbox.");
+      setShowForgotPassword(false);
+      setResetEmail("");
+    } catch (error) {
+      console.error('Password reset error:', error);
+      toast.error(error instanceof Error ? error.message : "Failed to send reset email");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleDemoLogin = async (demoEmail: string) => {
     setLoading(true);
     try {
@@ -89,6 +114,53 @@ export function AuthPage() {
       setLoading(false);
     }
   };
+
+  if (showForgotPassword) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md shadow-2xl">
+          <CardHeader className="bg-gradient-to-r from-blue-900 to-blue-800 text-white rounded-t-lg">
+            <CardTitle className="text-xl text-center">Reset Password</CardTitle>
+            <CardDescription className="text-blue-100 text-center">
+              Enter your email to receive a password reset link
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-6">
+            <form onSubmit={handleForgotPassword} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="reset-email">Email Address</Label>
+                <Input
+                  id="reset-email"
+                  type="email"
+                  placeholder="your.email@wajir.go.ke"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  required
+                  className="h-12"
+                />
+              </div>
+              <Button 
+                type="submit" 
+                className="w-full h-12 bg-blue-600 hover:bg-blue-700"
+                disabled={loading}
+              >
+                {loading ? "Sending..." : "Send Reset Link"}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full"
+                onClick={() => setShowForgotPassword(false)}
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Sign In
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 flex items-center justify-center p-4">
@@ -195,6 +267,16 @@ export function AuthPage() {
                           {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </Button>
                       </div>
+                    </div>
+                    <div className="flex justify-end">
+                      <Button
+                        type="button"
+                        variant="link"
+                        className="text-blue-600 hover:text-blue-800 p-0 h-auto"
+                        onClick={() => setShowForgotPassword(true)}
+                      >
+                        Forgot Password?
+                      </Button>
                     </div>
                     <Button 
                       type="submit" 

@@ -9,6 +9,10 @@ import { AuthProvider } from "@/components/AuthProvider";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
+import TicketsPage from "./pages/TicketsPage";
+import UsersPage from "./pages/UsersPage";
+import ReportsPage from "./pages/ReportsPage";
+import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +34,50 @@ const App = () => (
                     breadcrumbs={[{ label: "Home" }]}
                   >
                     <Dashboard />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/tickets" element={
+                <ProtectedRoute>
+                  <DashboardLayout 
+                    title="Support Tickets" 
+                    description="Manage and track support requests"
+                    breadcrumbs={[{ label: "Home", href: "/" }, { label: "Tickets" }]}
+                  >
+                    <TicketsPage />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/users" element={
+                <ProtectedRoute>
+                  <DashboardLayout 
+                    title="User Management" 
+                    description="Manage system users and permissions"
+                    breadcrumbs={[{ label: "Home", href: "/" }, { label: "Users" }]}
+                  >
+                    <UsersPage />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/reports" element={
+                <ProtectedRoute>
+                  <DashboardLayout 
+                    title="Reports & Analytics" 
+                    description="View system reports and analytics"
+                    breadcrumbs={[{ label: "Home", href: "/" }, { label: "Reports" }]}
+                  >
+                    <ReportsPage />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/settings" element={
+                <ProtectedRoute>
+                  <DashboardLayout 
+                    title="System Settings" 
+                    description="Configure system preferences"
+                    breadcrumbs={[{ label: "Home", href: "/" }, { label: "Settings" }]}
+                  >
+                    <SettingsPage />
                   </DashboardLayout>
                 </ProtectedRoute>
               } />
