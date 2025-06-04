@@ -87,7 +87,11 @@ const departmentOffices = {
   ]
 };
 
-export function TicketForm() {
+interface TicketFormProps {
+  onSuccess?: () => void;
+}
+
+export function TicketForm({ onSuccess }: TicketFormProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<TicketCategory>("hardware");
@@ -112,6 +116,11 @@ export function TicketForm() {
       setCategory("hardware");
       setSpecificOffice("");
       setShowAssistance(false);
+      
+      // Call the onSuccess callback if provided
+      if (onSuccess) {
+        onSuccess();
+      }
     },
     onError: (error) => {
       console.error('Error creating ticket:', error);
