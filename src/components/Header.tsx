@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Settings, Bell, Menu, Shield } from "lucide-react";
+import { Settings, Bell, Menu, Shield, Sparkles, Zap } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { UserMenu } from "./UserMenu";
 import { useAuth } from "./AuthProvider";
@@ -37,21 +37,25 @@ export function Header() {
                 </h1>
                 <div className="flex items-center space-x-2">
                   <p className="text-sm text-blue-200 font-semibold">ICT Department - Help Desk System</p>
+                  <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-0 animate-pulse">
+                    <Sparkles className="h-3 w-3 mr-1" />
+                    Enhanced
+                  </Badge>
                   {userProfile?.role === 'superuser' && (
-                    <Badge variant="destructive" className="text-xs px-2 py-0 bg-red-600 animate-pulse">
+                    <Badge variant="destructive" className="text-xs px-2 py-0 bg-gradient-to-r from-red-500 to-red-600 animate-pulse shadow-lg">
                       <Shield className="h-3 w-3 mr-1" />
                       SUPER ADMIN
                     </Badge>
                   )}
                   {userProfile?.role === 'admin' && (
-                    <Badge variant="secondary" className="text-xs px-2 py-0 bg-orange-600 text-white">
+                    <Badge variant="secondary" className="text-xs px-2 py-0 bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg">
                       <Shield className="h-3 w-3 mr-1" />
                       ADMIN
                     </Badge>
                   )}
                   {userProfile?.role === 'ict_officer' && (
-                    <Badge variant="outline" className="text-xs px-2 py-0 bg-blue-600 text-white border-blue-400">
-                      <Settings className="h-3 w-3 mr-1" />
+                    <Badge variant="outline" className="text-xs px-2 py-0 bg-gradient-to-r from-green-500 to-green-600 text-white border-green-400 shadow-lg">
+                      <Zap className="h-3 w-3 mr-1" />
                       ICT OFFICER
                     </Badge>
                   )}
@@ -68,20 +72,20 @@ export function Header() {
                   variant="ghost"
                   size="icon"
                   aria-label="Notifications"
-                  className="text-blue-200 hover:text-white hover:bg-blue-800 relative transition-all duration-300"
+                  className="text-blue-200 hover:text-white hover:bg-blue-800 relative transition-all duration-300 hover:scale-105"
                 >
                   <Bell className="h-5 w-5" />
-                  <div className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full animate-pulse shadow-lg"></div>
+                  <div className="absolute -top-1 -right-1 h-3 w-3 bg-gradient-to-r from-red-400 to-red-600 rounded-full animate-pulse shadow-lg ring-2 ring-white"></div>
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
                   aria-label="Settings"
-                  className="text-blue-200 hover:text-white hover:bg-blue-800 transition-all duration-300"
+                  className="text-blue-200 hover:text-white hover:bg-blue-800 transition-all duration-300 hover:scale-105"
                 >
                   <Settings className="h-5 w-5" />
                 </Button>
-                <div className="h-8 w-px bg-blue-600"></div>
+                <div className="h-8 w-px bg-gradient-to-b from-blue-600 to-blue-400"></div>
                 <UserMenu />
               </>
             )}
