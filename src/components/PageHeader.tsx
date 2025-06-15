@@ -1,5 +1,6 @@
 
 import { UserMenu } from "./UserMenu";
+import { NotificationCenter } from "./NotificationCenter";
 
 interface PageHeaderProps {
   title: string;
@@ -39,6 +40,7 @@ export function PageHeader({ title, description, breadcrumbs, actions }: PageHea
         
         <div className="flex items-center space-x-4">
           {actions}
+          <NotificationCenter />
           <UserMenu />
         </div>
       </div>

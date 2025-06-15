@@ -1,24 +1,37 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Search, Filter } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import { TicketDashboard } from "@/components/TicketDashboard";
 import { TicketForm } from "@/components/TicketForm";
 import { TicketList } from "@/components/TicketList";
+import { AdvancedSearch } from "@/components/AdvancedSearch";
+import { SLATracker } from "@/components/SLATracker";
+import { TicketAnalytics } from "@/components/TicketAnalytics";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function TicketsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [searchFilters, setSearchFilters] = useState<any>(null);
+
+  const handleSearch = (filters: any) => {
+    setSearchFilters(filters);
+    console.log('Search filters:', filters);
+    // Implement actual filtering logic here
+  };
+
+  const handleClearSearch = () => {
+    setSearchFilters(null);
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-slate-900">Support Tickets</h2>
-          <p className="text-slate-600">Manage and track all support requests</p>
+          <p className="text-slate-600">Comprehensive ticket management and analytics</p>
         </div>
         <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
           <DialogTrigger asChild>
@@ -36,20 +49,25 @@ export default function TicketsPage() {
         </Dialog>
       </div>
 
-      <TicketDashboard />
-
       <Tabs defaultValue="all-tickets" className="space-y-6">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
+        <TabsList className="grid w-full max-w-2xl grid-cols-5">
           <TabsTrigger value="all-tickets">All Tickets</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="sla">SLA Tracking</TabsTrigger>
+          <TabsTrigger value="search">Advanced Search</TabsTrigger>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="overview" className="space-y-6">
+          <TicketDashboard />
+        </TabsContent>
 
         <TabsContent value="all-tickets" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Ticket Management</CardTitle>
               <CardDescription>
-                View, search, and filter all support tickets in the system
+                View, search, and manage all support tickets in the system
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -59,76 +77,31 @@ export default function TicketsPage() {
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Ticket Categories</CardTitle>
-                <CardDescription>Distribution of tickets by category</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Hardware Issues</span>
-                    <span className="text-sm font-medium">35%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-blue-600 h-2 rounded-full" style={{ width: '35%' }}></div>
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Software Issues</span>
-                    <span className="text-sm font-medium">28%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-green-600 h-2 rounded-full" style={{ width: '28%' }}></div>
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Network Issues</span>
-                    <span className="text-sm font-medium">22%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-orange-600 h-2 rounded-full" style={{ width: '22%' }}></div>
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Email Problems</span>
-                    <span className="text-sm font-medium">15%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-red-600 h-2 rounded-full" style={{ width: '15%' }}></div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          <TicketAnalytics />
+        </TabsContent>
 
+        <TabsContent value="sla" className="space-y-6">
+          <SLATracker />
+        </TabsContent>
+
+        <TabsContent value="search" className="space-y-6">
+          <AdvancedSearch 
+            onSearch={handleSearch}
+            onClear={handleClearSearch}
+          />
+          {searchFilters && (
             <Card>
               <CardHeader>
-                <CardTitle>Resolution Times</CardTitle>
-                <CardDescription>Average time to resolve tickets</CardDescription>
+                <CardTitle>Search Results</CardTitle>
+                <CardDescription>
+                  Filtered tickets based on your search criteria
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Hardware</span>
-                    <span className="text-sm font-medium">4.2 hours</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Software</span>
-                    <span className="text-sm font-medium">2.8 hours</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Network</span>
-                    <span className="text-sm font-medium">3.5 hours</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Email</span>
-                    <span className="text-sm font-medium">1.5 hours</span>
-                  </div>
-                </div>
+                <TicketList />
               </CardContent>
             </Card>
-          </div>
+          )}
         </TabsContent>
       </Tabs>
     </div>

@@ -1,305 +1,215 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { DashboardStats } from "@/components/TicketDashboard";
+import { StatsGrid } from "@/components/StatsCards";
+import { QuickActions } from "@/components/QuickActions";
+import { SystemStatus } from "@/components/SystemStatus";
+import { TicketAnalytics } from "@/components/TicketAnalytics";
+import { SLATracker } from "@/components/SLATracker";
+import { useAuth } from "@/components/AuthProvider";
 import { useQuery } from "@tanstack/react-query";
 import { getTickets } from "@/utils/ticketUtils";
-import { useAuth } from "@/components/AuthProvider";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
+  Home, 
   Ticket, 
-  Clock, 
-  CheckCircle, 
-  AlertTriangle, 
-  Users, 
-  TrendingUp,
-  Plus,
-  Activity
+  BarChart3, 
+  Clock,
+  Users,
+  CheckCircle,
+  AlertTriangle,
+  TrendingUp
 } from "lucide-react";
-import { Link } from "react-router-dom";
 
 export default function Dashboard() {
   const { userProfile } = useAuth();
-  const { data: tickets = [], isLoading } = useQuery({
+  const { data: tickets = [] } = useQuery({
     queryKey: ['tickets'],
     queryFn: getTickets,
   });
 
-  const userTickets = userProfile?.role === 'user' 
-    ? tickets.filter(ticket => ticket.submittedBy.id === userProfile?.id)
-    : tickets;
+  // Calculate stats based on user role
+  const myTickets = userProfile ? tickets.filter(t => t.submittedBy.id === userProfile.id) : [];
+  const openTickets = tickets.filter(t => t.status === 'open' || t.status === 'in-progress');
+  const resolvedToday = tickets.filter(t => {
+    const today = new Date().toDateString();
+    return t.status === 'resolved' && new Date(t.updatedAt).toDateString() === today;
+  }).length;
 
-  const openTickets = userTickets.filter(t => t.status === 'open').length;
-  const inProgressTickets = userTickets.filter(t => t.status === 'in-progress').length;
-  const resolvedTickets = userTickets.filter(t => t.status === 'resolved').length;
-  const closedTickets = userTickets.filter(t => t.status === 'closed').length;
-
-  const recentTickets = userTickets
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 5);
-
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 17) return "Good afternoon";
-    return "Good evening";
-  };
-
-  const getRoleSpecificStats = () => {
+  const getUserSpecificStats = () => {
     if (userProfile?.role === 'user') {
       return [
         {
           title: "My Open Tickets",
-          value: openTickets,
-          description: "Tickets waiting for response",
-          icon: Ticket,
-          color: "text-orange-600"
+          value: myTickets.filter(t => t.status !== 'resolved').length,
+          description: "Active support requests",
+          icon: <Ticket className="h-4 w-4" />,
+          trend: "neutral" as const,
+          trendValue: ""
         },
         {
-          title: "In Progress",
-          value: inProgressTickets,
-          description: "Being worked on",
-          icon: Clock,
-          color: "text-blue-600"
+          title: "Total Submitted",
+          value: myTickets.length,
+          description: "All time tickets",
+          icon: <BarChart3 className="h-4 w-4" />,
+          trend: "neutral" as const,
+          trendValue: ""
         },
         {
-          title: "Resolved",
-          value: resolvedTickets,
-          description: "Recently resolved",
-          icon: CheckCircle,
-          color: "text-green-600"
+          title: "Average Resolution",
+          value: "2.3 days",
+          description: "Your tickets average",
+          icon: <Clock className="h-4 w-4" />,
+          trend: "down" as const,
+          trendValue: "0.5 days faster"
         },
         {
-          title: "Total Tickets",
-          value: userTickets.length,
-          description: "All time submissions",
-          icon: Activity,
-          color: "text-purple-600"
+          title: "Satisfaction Rate",
+          value: "4.8/5",
+          description: "Your feedback average",
+          icon: <CheckCircle className="h-4 w-4" />,
+          trend: "up" as const,
+          trendValue: "0.2 points"
         }
       ];
     } else {
       return [
         {
-          title: "Open Tickets",
-          value: openTickets,
-          description: "Need attention",
-          icon: AlertTriangle,
-          color: "text-red-600"
+          title: "Total Tickets",
+          value: tickets.length,
+          description: "All tickets in system",
+          icon: <Ticket className="h-4 w-4" />,
+          trend: "up" as const,
+          trendValue: "+12%"
         },
         {
-          title: "In Progress",
-          value: inProgressTickets,
-          description: "Being resolved",
-          icon: Clock,
-          color: "text-blue-600"
+          title: "Open/In Progress",
+          value: openTickets.length,
+          description: "Requires attention",
+          icon: <AlertTriangle className="h-4 w-4" />,
+          trend: "down" as const,
+          trendValue: "-5%"
         },
         {
           title: "Resolved Today",
-          value: resolvedTickets,
+          value: resolvedToday,
           description: "Completed tickets",
-          icon: CheckCircle,
-          color: "text-green-600"
+          icon: <CheckCircle className="h-4 w-4" />,
+          trend: "up" as const,
+          trendValue: "+8%"
         },
         {
-          title: "Total Active",
-          value: openTickets + inProgressTickets,
-          description: "Requiring action",
-          icon: TrendingUp,
-          color: "text-purple-600"
+          title: "Response Time",
+          value: "2.1 hrs",
+          description: "Average this week",
+          icon: <Clock className="h-4 w-4" />,
+          trend: "down" as const,
+          trendValue: "15 min faster"
         }
       ];
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {[1, 2, 3, 4].map((i) => (
-            <Card key={i}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Loading...</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">...</div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
-  }
+  const getWelcomeMessage = () => {
+    const hour = new Date().getHours();
+    const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+    const name = userProfile?.name?.split(' ')[0] || 'User';
+    
+    if (userProfile?.role === 'user') {
+      return `${greeting}, ${name}! How can we help you today?`;
+    } else {
+      return `${greeting}, ${name}! Here's your ICT support overview.`;
+    }
+  };
 
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">
-              {getGreeting()}, {userProfile?.name}!
-            </h1>
-            <p className="text-blue-100 mt-1">
-              Welcome to the Wajir County ICT Help Desk System
-            </p>
-            <Badge variant="secondary" className="mt-2 bg-blue-500/20 text-blue-100 border-blue-400">
-              {userProfile?.role?.replace('_', ' ').toUpperCase()} - {userProfile?.department}
-            </Badge>
-          </div>
-          <div className="hidden md:flex items-center space-x-4">
-            <Link to="/submit-ticket">
-              <Button variant="secondary" className="bg-white/10 hover:bg-white/20 text-white border-white/20">
-                <Plus className="h-4 w-4 mr-2" />
-                New Ticket
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Statistics Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {getRoleSpecificStats().map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={index} className="hover:shadow-lg transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                <Icon className={`h-5 w-5 ${stat.color}`} />
-              </CardHeader>
-              <CardContent>
-                <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
-                <p className="text-xs text-muted-foreground">{stat.description}</p>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* Recent Activity */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="h-5 w-5" />
-              Recent Tickets
-            </CardTitle>
-            <CardDescription>
-              {userProfile?.role === 'user' ? 'Your latest submissions' : 'Latest system activity'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {recentTickets.length > 0 ? (
-              <div className="space-y-4">
-                {recentTickets.map((ticket) => (
-                  <div key={ticket.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                    <div className="flex-1">
-                      <h4 className="font-medium text-sm">{ticket.title}</h4>
-                      <p className="text-xs text-muted-foreground">
-                        {ticket.category} • {new Date(ticket.createdAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <Badge 
-                      variant={
-                        ticket.status === 'open' ? 'destructive' :
-                        ticket.status === 'in-progress' ? 'default' :
-                        ticket.status === 'resolved' ? 'secondary' : 'outline'
-                      }
-                      className="text-xs"
-                    >
-                      {ticket.status.replace('-', ' ')}
-                    </Badge>
-                  </div>
-                ))}
-                <div className="pt-2">
-                  <Link to={userProfile?.role === 'user' ? '/my-tickets' : '/tickets'}>
-                    <Button variant="outline" className="w-full">
-                      View All Tickets
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-6">
-                <Ticket className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">No tickets yet</p>
-                <Link to="/submit-ticket">
-                  <Button className="mt-2">Submit Your First Ticket</Button>
-                </Link>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              Quick Actions
-            </CardTitle>
-            <CardDescription>
-              Common tasks and shortcuts
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <Link to="/submit-ticket" className="block">
-                <Button variant="outline" className="w-full justify-start">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Submit New Ticket
-                </Button>
-              </Link>
-              <Link to="/knowledge-base" className="block">
-                <Button variant="outline" className="w-full justify-start">
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Browse Knowledge Base
-                </Button>
-              </Link>
-              {userProfile?.role !== 'user' && (
-                <>
-                  <Link to="/tickets" className="block">
-                    <Button variant="outline" className="w-full justify-start">
-                      <Activity className="h-4 w-4 mr-2" />
-                      Manage All Tickets
-                    </Button>
-                  </Link>
-                  <Link to="/reports" className="block">
-                    <Button variant="outline" className="w-full justify-start">
-                      <TrendingUp className="h-4 w-4 mr-2" />
-                      View Reports
-                    </Button>
-                  </Link>
-                </>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* System Status */}
-      <Card>
+      <Card className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CheckCircle className="h-5 w-5 text-green-600" />
-            System Status
+          <CardTitle className="text-xl">
+            {getWelcomeMessage()}
           </CardTitle>
+          <CardDescription className="text-blue-100">
+            {userProfile?.role === 'user' 
+              ? "Submit tickets, track progress, and access our knowledge base for quick solutions."
+              : "Monitor tickets, manage users, and ensure optimal ICT support delivery."
+            }
+          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-sm">Help Desk Online</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-sm">Email System Active</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-sm">Database Connected</span>
-            </div>
-          </div>
-        </CardContent>
       </Card>
+
+      {/* Stats Overview */}
+      <StatsGrid stats={getUserSpecificStats()} />
+
+      {/* Quick Actions */}
+      <QuickActions />
+
+      {/* Role-based Dashboard Content */}
+      {userProfile?.role === 'user' ? (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>My Recent Tickets</CardTitle>
+              <CardDescription>Your latest support requests</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {myTickets.slice(0, 5).length > 0 ? (
+                <div className="space-y-3">
+                  {myTickets.slice(0, 5).map((ticket) => (
+                    <div key={ticket.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <p className="font-medium text-sm">{ticket.title}</p>
+                        <p className="text-xs text-muted-foreground">#{ticket.id.slice(0, 8)}</p>
+                      </div>
+                      <div className="text-right">
+                        <div className={`inline-block px-2 py-1 rounded text-xs ${
+                          ticket.status === 'resolved' ? 'bg-green-100 text-green-800' :
+                          ticket.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
+                          'bg-orange-100 text-orange-800'
+                        }`}>
+                          {ticket.status}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-muted-foreground py-8">
+                  No tickets submitted yet. Click "Submit New Ticket" to get started.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <SystemStatus />
+        </div>
+      ) : (
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="sla">SLA Tracking</TabsTrigger>
+            <TabsTrigger value="system">System</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6">
+            <DashboardStats />
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-6">
+            <TicketAnalytics />
+          </TabsContent>
+
+          <TabsContent value="sla" className="space-y-6">
+            <SLATracker />
+          </TabsContent>
+
+          <TabsContent value="system" className="space-y-6">
+            <SystemStatus />
+          </TabsContent>
+        </Tabs>
+      )}
     </div>
   );
 }
